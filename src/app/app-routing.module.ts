@@ -1,8 +1,11 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {FrontendBackendTestComponent} from './frontend-backend-test/frontend-backend-test.component';
 
 
-const routes: Routes = [];
+const routes: Routes = [
+  {path: 'test', component: FrontendBackendTestComponent}
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
