@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1, 
+  "version": 1,
   "newProjectRoot": "projects",
   "projects": {
     "SimpleForumFrontend": {
@@ -117,8 +117,16 @@
               "devServerTarget": "SimpleForumFrontend:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {}
         }
       }
-    }},
-  "defaultProject": "SimpleForumFrontend"
+    }
+  },
+  "defaultProject": "SimpleForumFrontend",
+  "cli": {
+    "analytics": "8596e730-de1a-431f-bae9-9410dd6a8efd"
+  }
 }
