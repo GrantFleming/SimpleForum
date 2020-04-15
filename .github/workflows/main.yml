@@ -17,6 +17,8 @@ jobs:
         node-version: 10.x
 
     - name: Deploy
+      env:
+        GH_TOKEN: ${{ secrets.GHTOKEN }}
       run: |
         npm install
         npm run lint
