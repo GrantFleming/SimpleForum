@@ -1,0 +1,23 @@
+name: Deploy to Github pages
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 10.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+
+    - name: Deploy
+      run: |
+        npm install
+        npm run lint
+        npm run ng -- deploy --base-href=/SimpleForum/ --name="Grant Fleming" --email=grantgfleming@googlemail.com
