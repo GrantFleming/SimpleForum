@@ -18,4 +18,9 @@ export class PostService {
   getPosts(): Observable<Post[]> {
     return this.http.get<Post[]>(`${this.baseURL}${this.postsEndpoint}`);
   }
+
+  addPost(post: Post): Observable<Post> {
+    return this.http.post<Post>(`${this.baseURL}${this.postsEndpoint}`, post);
+  }
+
 }

@@ -4,17 +4,25 @@ import {HttpClientModule} from '@angular/common/http';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {FrontendBackendTestComponent} from './frontend-backend-test/frontend-backend-test.component';
+import {ForumComponent} from './components/forum/forum.component';
+import {PostFeedComponent} from './components/post-feed/post-feed.component';
+import {PostComponent} from './components/post/post.component';
+import {AddPostComponent} from './components/add-post/add-post.component';
+import {ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FrontendBackendTestComponent
+    ForumComponent,
+    PostFeedComponent,
+    PostComponent,
+    AddPostComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
