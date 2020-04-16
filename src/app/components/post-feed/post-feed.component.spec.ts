@@ -1,6 +1,7 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {PostFeedComponent} from './post-feed.component';
+import {HttpClientModule} from '@angular/common/http';
 
 describe('PostFeedComponent', () => {
   let component: PostFeedComponent;
@@ -8,6 +9,7 @@ describe('PostFeedComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientModule],
       declarations: [PostFeedComponent]
     })
       .compileComponents();
