@@ -8,7 +8,7 @@ import {Post} from '../../models/post';
 })
 export class PostComponent implements OnInit {
 
-  @Input() post: Post;
+  @Input() post: Post = new Post();
 
   constructor() {
   }
