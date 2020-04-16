@@ -2,14 +2,15 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Post} from '../models/post';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PostService {
 
-  baseURL = 'https://simpleforumbackend-boisterous-dog-yz.cfapps.io';
-  postsEndpoint = '/posts';
+  private baseURL: string = environment.backendHost;
+  private postsEndpoint = '/posts';
 
   constructor(private http: HttpClient) {
   }
