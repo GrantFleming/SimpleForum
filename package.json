@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "api": "json-server mockapi/db.json --no-cors=true",
-    "test:ci": "npm run clean && npm run test"
+    "test:ci": "npm run test"
   },
   "private": true,
   "dependencies": {
