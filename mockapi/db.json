@@ -6,9 +6,9 @@
       "body": "Some text to make up the body of a post"
     },
     {
-      "id": 2,
-      "title": "Another post",
-      "body": "Some text to make up the body of a second slightly longer post with much more information."
+      "title": "Will this",
+      "body": "work now?",
+      "id": 2
     }
   ]
 }

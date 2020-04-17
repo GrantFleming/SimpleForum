@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormControl, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {Post} from '../../models/post';
 import {PostService} from '../../services/post.service';
 
@@ -11,27 +11,24 @@ import {PostService} from '../../services/post.service';
 export class AddPostComponent implements OnInit {
 
   @Output() newPostEvent = new EventEmitter();
-  form;
-  private post = new Post();
+  newPostForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private postService: PostService) {
+  constructor(private fb: FormBuilder, private postService: PostService) {
+    this.newPostForm = this.fb.group({
+      title: [''],
+      body: ['']
+    });
   }
 
   get title() {
-    return this.form.get('title');
+    return this.newPostForm.get('title');
   }
 
   get body() {
-    return this.form.get('body');
+    return this.newPostForm.get('body');
   }
 
   ngOnInit(): void {
-    this.form = this.formBuilder.group(
-      {
-        title: new FormControl(this.post.title, [Validators.required, Validators.maxLength(100)]),
-        body: new FormControl(this.post.body, [Validators.required])
-      }
-    );
   }
 
   onSubmit(postData) {
@@ -51,7 +48,7 @@ export class AddPostComponent implements OnInit {
     );
 
     // and clear the form
-    this.form.reset();
+    this.newPostForm.reset();
   }
 
 }
