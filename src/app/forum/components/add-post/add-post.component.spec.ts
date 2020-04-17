@@ -24,11 +24,6 @@ describe('AddPostComponent', () => {
   });
 
   it('should create', () => {
-    try {
       expect(component).toBeTruthy();
-    } catch (e) {
-      // 404 if json server isn't running
-      // TODO - fix so isn't dependent on JSON server
-    }
   });
 });
