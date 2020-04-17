@@ -22,4 +22,8 @@ describe('PostComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should fail this test', () => {
+    expect(true).toBeFalse();
+  });
 });
