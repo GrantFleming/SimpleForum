@@ -15,12 +15,9 @@ export class PostFeedComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    try {
-      this.postService.getPosts().subscribe(posts => this.posts = posts);
-    } catch (e) {
-      // TODO - something useful if the backend fails to provide a valid response
-      this.posts = [];
-    }
+    this.postService.getPosts().subscribe(posts => {
+      this.posts = posts;
+    });
   }
 
   addPost(post: Post) {
