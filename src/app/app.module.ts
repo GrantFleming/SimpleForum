@@ -3,7 +3,6 @@ import {NgModule} from '@angular/core';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ForumModule} from './forum/forum.module';
 
 @NgModule({
@@ -13,9 +12,7 @@ import {ForumModule} from './forum/forum.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ForumModule,
-    FormsModule,
-    ReactiveFormsModule
+    ForumModule
   ],
   providers: [],
   bootstrap: [AppComponent]
