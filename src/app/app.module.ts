@@ -4,6 +4,10 @@ import {NgModule} from '@angular/core';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {ForumModule} from './forum/forum.module';
+import {HttpClientModule} from '@angular/common/http';
+import {HttpClientInMemoryWebApiModule} from 'angular-in-memory-web-api';
+import {InMemoryDataService} from './in-memory-data.service';
+import {environment} from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -12,6 +16,10 @@ import {ForumModule} from './forum/forum.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
+    environment.production ?
+      [] : HttpClientInMemoryWebApiModule.forRoot(
+      InMemoryDataService, {dataEncapsulation: false}),
     ForumModule
   ],
   providers: [],

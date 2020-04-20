@@ -4,9 +4,10 @@ import {Post} from '../models/post';
 
 describe('PostService', () => {
   let service: PostService;
-  const mockHttpClient = jasmine.createSpyObj(['get', 'post']);
+  let mockHttpClient;
 
   beforeEach(() => {
+    mockHttpClient = jasmine.createSpyObj(['get', 'post']);
     mockHttpClient.get.and.returnValue(
       new Observable(
         subscriber =>
