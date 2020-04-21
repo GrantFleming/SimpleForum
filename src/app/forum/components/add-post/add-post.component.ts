@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Post} from '../../models/post';
 import {PostService} from '../../services/post.service';
 
@@ -15,8 +15,8 @@ export class AddPostComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private postService: PostService) {
     this.newPostForm = this.fb.group({
-      title: [''],
-      body: ['']
+      title: ['', [Validators.required, Validators.maxLength(128)]],
+      body: ['', [Validators.required]]
     });
   }
 
@@ -32,9 +32,8 @@ export class AddPostComponent implements OnInit {
   }
 
   onSubmit(postData) {
-    if (this.title.invalid || this.body.invalid) {
-      this.title.markAsDirty();
-      this.body.markAsDirty();
+    if (!this.newPostForm.valid) {
+      // TODO - push a message when there is some kind of notification system
       return;
     }
 
@@ -50,5 +49,4 @@ export class AddPostComponent implements OnInit {
     // and clear the form
     this.newPostForm.reset();
   }
-
 }
