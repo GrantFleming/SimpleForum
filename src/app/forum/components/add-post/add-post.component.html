@@ -1,27 +1,16 @@
 <form (ngSubmit)="onSubmit(newPostForm.value)" [formGroup]="newPostForm">
 
-  <div>
-    <label for='title'>Title</label>
-    <input formControlName="title" id='title' type="text">
-    <div *ngIf="title.invalid && (title.dirty || title.touched)">
-      <div *ngIf="title.errors.required">
-        A post must contain a title.
-      </div>
-      <div *ngIf="title.errors.maxLength">
-        A title cannot be longer than 100 characters.
-      </div>
-    </div>
-  </div>
+  <mat-form-field>
+    <mat-label>Title</mat-label>
+    <input formControlName="title" id="title" matInput type="text">
+    <mat-error>{{titleErrors}}</mat-error>
+  </mat-form-field>
 
-  <div>
-    <label for="body">Body</label>
-    <input formControlName="body" id="body" type="text">
-    <div *ngIf="body.invalid && (body.dirty || body.touched)">
-      <div *ngIf="body.errors.required">
-        A post must contain some text in the body.
-      </div>
-    </div>
-  </div>
+  <mat-form-field>
+    <mat-label>Body</mat-label>
+    <textarea formControlName="body" id="body" matInput type="text"></textarea>
+    <mat-error>{{bodyErrors}}</mat-error>
+  </mat-form-field>
 
-  <button class="button" type="submit">Post</button>
+  <button class="button" color="primary" mat-raised-button type="submit">Post</button>
 </form>
