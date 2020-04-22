@@ -24,8 +24,24 @@ export class AddPostComponent implements OnInit {
     return this.newPostForm.get('title');
   }
 
+  get titleErrors(): string[] {
+    return this.title.errors ? Object.keys(this.title.errors) : [];
+  }
+
   get body() {
     return this.newPostForm.get('body');
+  }
+
+  get bodyErrors(): string[] {
+    return this.body.errors ? Object.keys(this.body.errors) : [];
+  }
+
+  get allErrors(): string[] {
+    return [].concat(...Object.keys(this.newPostForm.controls)
+      .map(key =>
+        this.newPostForm.controls[key].errors ?
+          Object.keys(this.newPostForm.controls[key].errors) :
+          []));
   }
 
   ngOnInit(): void {

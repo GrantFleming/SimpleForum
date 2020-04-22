@@ -43,6 +43,8 @@ describe('AddPostComponent', () => {
   function updateForm(title: string, body: string) {
     component.newPostForm.controls.title.setValue(title);
     component.newPostForm.controls.body.setValue(body);
+    component.newPostForm.controls.title.markAsDirty();
+    component.newPostForm.controls.body.markAsDirty();
   }
 
   function clickSubmitButton() {
@@ -124,10 +126,38 @@ describe('AddPostComponent', () => {
     updateForm('', 'x'); // invalid lack of title
     clickSubmitButton();
     const controls = component.newPostForm.controls;
-
     // the form controls should not contain null values
     for (const key of Object.keys(controls)) {
       expect(controls[key].value).not.toBe(null);
     }
+  });
+
+
+  it('should not display errors for a valid fields', () => {
+    updateForm('x', 'x');
+    expect(component.titleErrors.length).toBe(0);
+    expect(component.bodyErrors.length).toBe(0);
+    // There should be no form errors on the page
+    expect(fixture.debugElement.query(By.css('.formErrors'))).toBeFalsy();
+  });
+
+
+  it('should display an error for each violated Validator', () => {
+    // a single error on a single control
+    updateForm('', 'x');
+    fixture.detectChanges();
+
+    // there should be formErrors on the page
+    expect(fixture.debugElement.query(By.css('.formErrors'))).toBeTruthy();
+    // The number of errors shown should be the same as the number of errors in the form
+    expect(fixture.debugElement.queryAll(By.css('.formError')).length)
+      .toBe(component.allErrors.length);
+
+    // errors on multiple controls simultaneously
+    updateForm('', '');
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.formErrors'))).toBeTruthy();
+    expect(fixture.debugElement.queryAll(By.css('.formError')).length)
+      .toBe(component.allErrors.length);
   });
 });

@@ -3,12 +3,9 @@
   <div>
     <label for='title'>Title</label>
     <input formControlName="title" id='title' type="text">
-    <div *ngIf="title.invalid && (title.dirty || title.touched)">
-      <div *ngIf="title.errors.required">
-        A post must contain a title.
-      </div>
-      <div *ngIf="title.errors.maxLength">
-        A title cannot be longer than 100 characters.
+    <div *ngIf="title.invalid && (title.dirty || title.touched)" class="formErrors">
+      <div *ngFor="let error of titleErrors" class="formError">
+        invalid: {{error}}
       </div>
     </div>
   </div>
@@ -16,9 +13,9 @@
   <div>
     <label for="body">Body</label>
     <input formControlName="body" id="body" type="text">
-    <div *ngIf="body.invalid && (body.dirty || body.touched)">
-      <div *ngIf="body.errors.required">
-        A post must contain some text in the body.
+    <div *ngIf="body.invalid && (body.dirty || body.touched)" class="formErrors">
+      <div *ngFor="let error of bodyErrors" class="formError">
+        invalid: {{error}}
       </div>
     </div>
   </div>
