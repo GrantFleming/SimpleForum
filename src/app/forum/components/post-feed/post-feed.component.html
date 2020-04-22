@@ -1,3 +1,3 @@
 <div class="container">
-  <app-post *ngFor="let post of posts" [post]="post"></app-post>
+  <app-post *ngFor="let post of posts; let last = last;" [class.last]="last" [post]="post"></app-post>
 </div>
