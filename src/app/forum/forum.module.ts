@@ -6,6 +6,7 @@ import {PostComponent} from './components/post/post.component';
 import {AddPostComponent} from './components/add-post/add-post.component';
 import {ForumComponent} from './components/forum/forum.component';
 import {MatCardModule} from '@angular/material/card';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import {MatCardModule} from '@angular/material/card';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatCardModule
+    MatCardModule,
+    MatGridListModule
   ]
 })
 export class ForumModule {
