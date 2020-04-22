@@ -1,5 +1,5 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, FormGroupDirective, Validators} from '@angular/forms';
 import {Post} from '../../models/post';
 import {PostService} from '../../services/post.service';
 
@@ -11,6 +11,7 @@ import {PostService} from '../../services/post.service';
 export class AddPostComponent implements OnInit {
 
   @Output() newPostEvent = new EventEmitter();
+  @ViewChild(FormGroupDirective) form;
   newPostForm: FormGroup;
 
   constructor(private fb: FormBuilder, private postService: PostService) {
@@ -64,5 +65,7 @@ export class AddPostComponent implements OnInit {
 
     // and clear the form
     this.newPostForm.reset();
+    // must reset the actual form too in order to reset it's 'isSubmitted' status
+    this.form.resetForm();
   }
 }

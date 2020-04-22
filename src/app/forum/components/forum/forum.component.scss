@@ -1,0 +1,16 @@
+.container {
+  padding: 2em;
+  text-align: center;
+}
+
+app-post-feed {
+  // to undo the text-align centre in the post feed
+  text-align: left;
+}
+
+app-add-post {
+  max-width: 700px;
+  width: 100%;
+  display: inline-block;
+}
+

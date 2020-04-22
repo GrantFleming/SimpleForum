@@ -105,7 +105,8 @@ describe('PostFeedComponent', () => {
 
 @Component({
   selector: 'app-post',
-  template: ''
+  template: '<div></div>'
+  // template needs to contain an element as the component accesses it's children
 })
 class StubbedPostComponent {
   @Input() post: Post;

@@ -7,6 +7,8 @@ import {AddPostComponent} from './components/add-post/add-post.component';
 import {ForumComponent} from './components/forum/forum.component';
 import {MatCardModule} from '@angular/material/card';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import {MatGridListModule} from '@angular/material/grid-list';
     FormsModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatGridListModule
+    MatGridListModule,
+    MatInputModule,
+    MatButtonModule
   ]
 })
 export class ForumModule {

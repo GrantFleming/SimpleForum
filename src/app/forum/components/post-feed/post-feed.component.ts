@@ -32,7 +32,7 @@ export class PostFeedComponent implements OnInit, AfterViewChecked {
    */
   ngAfterViewChecked(): void {
     if (this.newPost) {
-      const lastPost = document.querySelector('app-post-feed app-post.last');
+      const lastPost = document.querySelector('app-post.last');
       scrollBy(0, lastPost.scrollHeight + lastPost.children.item(0).clientHeight);
       this.newPost = false;
     }

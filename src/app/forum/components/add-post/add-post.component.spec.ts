@@ -7,6 +7,9 @@ import {asyncData} from '../../../test_utils/test_async_utils';
 import {Post} from '../../models/post';
 import {DebugElement} from '@angular/core';
 import {By} from '@angular/platform-browser';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 describe('AddPostComponent', () => {
   let postServiceStub: Partial<PostService>;
@@ -24,7 +27,11 @@ describe('AddPostComponent', () => {
     TestBed.configureTestingModule({
       declarations: [AddPostComponent],
       imports: [
-        ReactiveFormsModule // for the [formGroup] directive
+        ReactiveFormsModule, // for the [formGroup] directive
+        MatFormFieldModule,
+        MatInputModule,
+        BrowserAnimationsModule
+        // TODO - look up testing with Material - do I need to have all these imports?
       ],
       providers: [
         FormBuilder,
@@ -44,7 +51,9 @@ describe('AddPostComponent', () => {
     component.newPostForm.controls.title.setValue(title);
     component.newPostForm.controls.body.setValue(body);
     component.newPostForm.controls.title.markAsDirty();
+    component.newPostForm.controls.title.markAsTouched();
     component.newPostForm.controls.body.markAsDirty();
+    component.newPostForm.controls.title.markAsTouched();
   }
 
   function clickSubmitButton() {
@@ -122,6 +131,13 @@ describe('AddPostComponent', () => {
   });
 
 
+  it('should reset the forms submitted status after a valid submission', () => {
+    updateForm('x', 'x');
+    clickSubmitButton();
+    expect(component.form.submitted).toBeFalse();
+  });
+
+
   it('should not clear the form after an invalid submission', () => {
     updateForm('', 'x'); // invalid lack of title
     clickSubmitButton();
@@ -142,22 +158,12 @@ describe('AddPostComponent', () => {
   });
 
 
-  it('should display an error for each violated Validator', () => {
+  it('should display an error when a Validator is violated', () => {
     // a single error on a single control
     updateForm('', 'x');
     fixture.detectChanges();
 
-    // there should be formErrors on the page
-    expect(fixture.debugElement.query(By.css('.formErrors'))).toBeTruthy();
-    // The number of errors shown should be the same as the number of errors in the form
-    expect(fixture.debugElement.queryAll(By.css('.formError')).length)
-      .toBe(component.allErrors.length);
-
-    // errors on multiple controls simultaneously
-    updateForm('', '');
-    fixture.detectChanges();
-    expect(fixture.debugElement.query(By.css('.formErrors'))).toBeTruthy();
-    expect(fixture.debugElement.queryAll(By.css('.formError')).length)
-      .toBe(component.allErrors.length);
+    // there should be a mat-error on the page
+    expect(fixture.debugElement.queryAll(By.css('mat-error')).length).toBe(1);
   });
 });

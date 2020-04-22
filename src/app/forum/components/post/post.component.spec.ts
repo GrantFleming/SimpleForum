@@ -4,6 +4,7 @@ import {PostComponent} from './post.component';
 import {Post} from '../../models/post';
 import {By} from '@angular/platform-browser';
 import {DebugElement} from '@angular/core';
+import {MatCardModule} from '@angular/material/card';
 
 describe('PostComponent', () => {
   let component: PostComponent;
@@ -12,7 +13,10 @@ describe('PostComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [PostComponent]
+      declarations: [PostComponent],
+      imports: [
+        MatCardModule
+      ]
     })
       .compileComponents();
   }));
