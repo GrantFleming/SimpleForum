@@ -1,14 +1,15 @@
-import {AfterViewChecked, Component, OnInit} from '@angular/core';
+import {AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {PostService} from '../../services/post.service';
 import {Post} from '../../models/post';
 
 @Component({
-  selector: 'app-post-feed',
+  selector: 'app-post-feed[forumId]',
   templateUrl: './post-feed.component.html',
   styleUrls: ['./post-feed.component.scss']
 })
-export class PostFeedComponent implements OnInit, AfterViewChecked {
+export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges {
 
+  @Input() forumId: number;
   posts: Post[];
   newPost = false;
 
@@ -16,14 +17,28 @@ export class PostFeedComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.postService.getPosts().subscribe(posts => {
-      this.posts = posts;
-    });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this._checkAttributes();
+    this._getPosts();
   }
 
   addPost(post: Post) {
     this.posts.push(post);
     this.newPost = true;
+  }
+
+  private _checkAttributes() {
+    if (this.forumId === undefined || this.forumId === null) {
+      throw new Error('Attribute \'forumId\' cannot be undefined or null.');
+    }
+  }
+
+  private _getPosts() {
+    this.postService.getPosts(this.forumId).subscribe(posts => {
+      this.posts = posts;
+    });
   }
 
   /**
@@ -37,4 +52,5 @@ export class PostFeedComponent implements OnInit, AfterViewChecked {
       this.newPost = false;
     }
   }
+
 }

@@ -24,7 +24,7 @@ describe('PostComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PostComponent);
     component = fixture.componentInstance;
-    expectedPost = {id: 1, title: 'A post title', body: 'A post body'};
+    expectedPost = {id: 1, forumId: 1, title: 'A post title', body: 'A post body'};
     component.post = expectedPost;
     fixture.detectChanges();
   });

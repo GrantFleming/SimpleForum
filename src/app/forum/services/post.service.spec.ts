@@ -3,6 +3,8 @@ import {Post} from '../models/post';
 import {HttpErrorResponse} from '@angular/common/http';
 import {fakeAsync} from '@angular/core/testing';
 import {asyncError, genericError} from '../../test_utils/test_async_utils';
+import {environment} from '../../../environments/environment';
+import {of} from 'rxjs';
 
 describe('PostService', () => {
   let service: PostService;
@@ -25,7 +27,8 @@ describe('PostService', () => {
     mockHttpClient.get.and.returnValue(
       asyncError(genericError)
     );
-    service.getPosts().subscribe(
+    // arbitrary choice of forumId
+    service.getPosts(1).subscribe(
       value => expect(value).toEqual([]),
       () => fail(' expected empty list on error, not error'));
   }));
@@ -35,11 +38,20 @@ describe('PostService', () => {
     mockHttpClient.get.and.returnValue(
       asyncError(response404)
     );
-
-    service.getPosts().subscribe(
+    // arbitrary choice of forumId
+    service.getPosts(1).subscribe(
       posts => expect(posts).toEqual([]),
       () => fail('expected empty list on 404, not error'));
   }));
+
+
+  it('#getPosts should pass the forumId in the queryString', () => {
+    mockHttpClient.get.and.returnValue(
+      of({}) // response doesn't matter
+    );
+    service.getPosts(666).subscribe();
+    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/posts?forumId=666`);
+  });
 
 
   it('#addPost should return the same post back on error', fakeAsync(() => {

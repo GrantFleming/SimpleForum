@@ -1,9 +1,11 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {Post} from '../models/post';
 import {environment} from '../../../environments/environment';
 import {catchError} from 'rxjs/operators';
+
+const cudOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +18,8 @@ export class PostService {
   constructor(private http: HttpClient) {
   }
 
-  getPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>(`${this.baseURL}${this.postsEndpoint}`)
+  getPosts(forumId: number): Observable<Post[]> {
+    return this.http.get<Post[]>(`${this.baseURL}${this.postsEndpoint}?forumId=${forumId}`)
       .pipe(
         catchError(this.handleError<Post[]>([]))
       );
@@ -25,10 +27,10 @@ export class PostService {
 
   addPost(post: Post): Observable<Post> {
     if (post.id) {
-      throw new Error('Post cannot already contain an id as this can be overridden by the server.');
+      throw new Error('Post cannot already contain as this is assigned by the server.');
     }
 
-    return this.http.post<Post>(`${this.baseURL}${this.postsEndpoint}`, post)
+    return this.http.post<Post>(`${this.baseURL}${this.postsEndpoint}`, post, cudOptions)
       .pipe(
         catchError(this.handleError<Post>(post))
       );

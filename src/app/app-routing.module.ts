@@ -4,7 +4,8 @@ import {ForumComponent} from './forum/components/forum/forum.component';
 
 
 const routes: Routes = [
-  {path: '', component: ForumComponent}
+  {path: '', redirectTo: 'forums/1', pathMatch: 'full'}, // temporary redirection
+  {path: 'forums/:id', component: ForumComponent}
 ];
 
 @NgModule({

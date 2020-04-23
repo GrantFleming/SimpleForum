@@ -1,5 +1,5 @@
 <div class="container">
   <h2>Forum</h2>
-  <app-post-feed #feedComponent></app-post-feed>
-  <app-add-post (newPostEvent)="feedComponent.addPost($event)"></app-add-post>
+  <app-post-feed #feedComponent [forumId]=forumId></app-post-feed>
+  <app-add-post (newPostEvent)="feedComponent.addPost($event)" [forumId]="forumId"></app-add-post>
 </div>

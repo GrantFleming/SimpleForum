@@ -1,15 +1,16 @@
-import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, FormGroupDirective, Validators} from '@angular/forms';
 import {Post} from '../../models/post';
 import {PostService} from '../../services/post.service';
 
 @Component({
-  selector: 'app-add-post',
+  selector: 'app-add-post[forumId]',
   templateUrl: './add-post.component.html',
   styleUrls: ['./add-post.component.scss']
 })
 export class AddPostComponent implements OnInit {
 
+  @Input() forumId: number;
   @Output() newPostEvent = new EventEmitter();
   @ViewChild(FormGroupDirective) form;
   newPostForm: FormGroup;
@@ -49,6 +50,7 @@ export class AddPostComponent implements OnInit {
     // submit new post to server and emit the event so the forum can add
     // the newly created post to the UI
     const newPost = new Post();
+    newPost.forumId = this.forumId;
     newPost.title = postData.title;
     newPost.body = postData.body;
     this.postService.addPost(newPost).subscribe(
