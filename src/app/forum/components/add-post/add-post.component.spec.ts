@@ -47,13 +47,13 @@ describe('AddPostComponent', () => {
     fixture.detectChanges();
   });
 
-  function updateForm(title: string, body: string) {
+  function updateForm(title: string = '', body: string = '') {
     component.newPostForm.controls.title.setValue(title);
     component.newPostForm.controls.body.setValue(body);
     component.newPostForm.controls.title.markAsDirty();
     component.newPostForm.controls.title.markAsTouched();
     component.newPostForm.controls.body.markAsDirty();
-    component.newPostForm.controls.title.markAsTouched();
+    component.newPostForm.controls.body.markAsTouched();
   }
 
   function clickSubmitButton() {
@@ -158,12 +158,21 @@ describe('AddPostComponent', () => {
   });
 
 
-  it('should display an error when a Validator is violated', () => {
-    // a single error on a single control
-    updateForm('', 'x');
+  it('should display an error for each input whose Validator is violated', () => {
+    // ensure every control has a validator which will generate an error regardless
+    const controls = component.newPostForm.controls;
+    for (const ctl of Object.keys(controls)) {
+      controls[ctl].setValidators(control => ({['any old error']: ''}));
+    }
+
+    updateForm();
     fixture.detectChanges();
 
-    // there should be a mat-error on the page
-    expect(fixture.debugElement.queryAll(By.css('mat-error')).length).toBe(1);
+    // every mat-form-field should contain a mat-error
+    const formFieldsDe = fixture.debugElement.queryAll(By.css('mat-form-field'));
+    for (const fieldDe of formFieldsDe) {
+      const error = fieldDe.query(By.css('mat-error'));
+      expect(error).toBeTruthy();
+    }
   });
 });
