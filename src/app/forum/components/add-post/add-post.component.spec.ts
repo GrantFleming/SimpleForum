@@ -5,11 +5,8 @@ import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {PostService} from '../../services/post.service';
 import {asyncData} from '../../../test_utils/test_async_utils';
 import {Post} from '../../models/post';
-import {DebugElement} from '@angular/core';
+import {Component, DebugElement} from '@angular/core';
 import {By} from '@angular/platform-browser';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 describe('AddPostComponent', () => {
   let postServiceStub: Partial<PostService>;
@@ -25,13 +22,14 @@ describe('AddPostComponent', () => {
     spyOn(postServiceStub, 'addPost').and.callThrough();
 
     TestBed.configureTestingModule({
-      declarations: [AddPostComponent],
+      declarations: [
+        AddPostComponent,
+        MatFormFieldStubComponent,
+        MatErrorStubComponent,
+        MatLabelStubComponent
+      ],
       imports: [
         ReactiveFormsModule, // for the [formGroup] directive
-        MatFormFieldModule,
-        MatInputModule,
-        BrowserAnimationsModule
-        // TODO - look up testing with Material - do I need to have all these imports?
       ],
       providers: [
         FormBuilder,
@@ -153,21 +151,10 @@ describe('AddPostComponent', () => {
     updateForm('x', 'x');
     expect(component.titleErrors.length).toBe(0);
     expect(component.bodyErrors.length).toBe(0);
-    // There should be no form errors on the page
-    expect(fixture.debugElement.query(By.css('.formErrors'))).toBeFalsy();
   });
 
 
-  it('should display an error for each input whose Validator is violated', () => {
-    // ensure every control has a validator which will generate an error regardless
-    const controls = component.newPostForm.controls;
-    for (const ctl of Object.keys(controls)) {
-      controls[ctl].setValidators(control => ({['any old error']: ''}));
-    }
-
-    updateForm();
-    fixture.detectChanges();
-
+  it('should have a mat-error in each mat-form-field', () => {
     // every mat-form-field should contain a mat-error
     const formFieldsDe = fixture.debugElement.queryAll(By.css('mat-form-field'));
     for (const fieldDe of formFieldsDe) {
@@ -176,3 +163,31 @@ describe('AddPostComponent', () => {
     }
   });
 });
+
+
+// Material stubs:
+
+
+@Component({
+  // tslint:disable-next-line:component-selector
+  selector: 'mat-form-field',
+  template: '<ng-content></ng-content>'
+})
+class MatFormFieldStubComponent {
+}
+
+@Component({
+  // tslint:disable-next-line:component-selector
+  selector: 'mat-label',
+  template: '<ng-content></ng-content>'
+})
+class MatLabelStubComponent {
+}
+
+@Component({
+  // tslint:disable-next-line:component-selector
+  selector: 'mat-error',
+  template: '<ng-content></ng-content>'
+})
+class MatErrorStubComponent {
+}
