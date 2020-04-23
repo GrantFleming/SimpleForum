@@ -12,34 +12,43 @@ describe('PostFeedComponent', () => {
   const expectedPosts = [
     {
       id: 1,
+      forumId: 1,
       title: 'A post',
       body: 'Some text to make up the body of a post'
     },
     {
       id: 2,
+      forumId: 1,
       title: 'Another post',
       body: 'Another body of yet another post'
     }];
 
   let component: PostFeedComponent;
-  let fixture: ComponentFixture<PostFeedComponent>;
+  let fixture: ComponentFixture<WrapperComponent>;
 
   beforeEach(async(() => {
 
     postServiceStub = {
-      getPosts: () => asyncData<Post[]>([...expectedPosts])
+      // give back null if an argument is not provided to the function
+      getPosts: (forumId: number) => (forumId ? asyncData<Post[]>([...expectedPosts]) : null)
     };
 
     TestBed.configureTestingModule({
-      declarations: [PostFeedComponent, StubbedPostComponent],
+      declarations: [
+        PostFeedComponent,
+        StubbedPostComponent,
+        WrapperComponent // to provide @Input()
+      ],
       providers: [{provide: PostService, useValue: postServiceStub}]
     }).compileComponents();
   }));
 
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PostFeedComponent);
-    component = fixture.componentInstance;
+    // Create the WrapperComponent as this injects the @Input()
+    fixture = TestBed.createComponent(WrapperComponent);
+    // Then get the component instance as a child of it's DebugElement
+    component = fixture.debugElement.children[0].componentInstance;
   });
 
 
@@ -83,7 +92,7 @@ describe('PostFeedComponent', () => {
     fixture.detectChanges(); // OnInit
     tick(); // to allow the asynchronous loading of posts from server
 
-    component.addPost({id: 3, title: 'a third post', body: 'a third body'});
+    component.addPost({id: 3, forumId: 1, title: 'a third post', body: 'a third body'});
     expect(component.posts.length).toBe(3);
   }));
 
@@ -92,7 +101,7 @@ describe('PostFeedComponent', () => {
     fixture.detectChanges();
     tick();
 
-    const testPost: Post = {id: 3, title: 'a third post', body: 'a third body'};
+    const testPost: Post = {id: 3, forumId: 1, title: 'a third post', body: 'a third body'};
     component.addPost(testPost);
     fixture.detectChanges();
 
@@ -100,6 +109,27 @@ describe('PostFeedComponent', () => {
     expect(appPosts.length).toBe(3);
     expect(appPosts[2].componentInstance.post).toEqual(testPost);
   }));
+
+  it('should have a bound forumId', () => {
+    fixture.componentInstance.forumId = 999;
+    fixture.detectChanges();
+    expect(component.forumId).toBe(999);
+  });
+
+  it('should throw an error if we try to make it\'s forumId attribute undefined or null', () => {
+    expect(
+      () => {
+        fixture.componentInstance.forumId = undefined;
+        fixture.detectChanges();
+      }
+    ).toThrow();
+    expect(
+      () => {
+        fixture.componentInstance.forumId = null;
+        fixture.detectChanges();
+      }
+    ).toThrow();
+  });
 });
 
 
@@ -110,4 +140,13 @@ describe('PostFeedComponent', () => {
 })
 class StubbedPostComponent {
   @Input() post: Post;
+}
+
+@Component({
+  // tslint:disable-next-line:component-selector
+  selector: 'wrapper',
+  template: '<app-post-feed [forumId]="forumId"></app-post-feed>'
+})
+class WrapperComponent {
+  forumId = 6;
 }

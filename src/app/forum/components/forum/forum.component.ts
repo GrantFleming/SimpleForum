@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-forum',
@@ -7,9 +8,14 @@ import {Component, OnInit} from '@angular/core';
 })
 export class ForumComponent implements OnInit {
 
-  constructor() {
+  forumId: number;
+
+  constructor(private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      this.forumId = Number(params.get('id'));
+    });
   }
 }

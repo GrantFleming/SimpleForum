@@ -12,7 +12,7 @@ describe('AddPostComponent', () => {
   let postServiceStub: Partial<PostService>;
 
   let component: AddPostComponent;
-  let fixture: ComponentFixture<AddPostComponent>;
+  let fixture: ComponentFixture<WrapperComponent>;
 
   beforeEach(async(() => {
     postServiceStub = {
@@ -26,7 +26,8 @@ describe('AddPostComponent', () => {
         AddPostComponent,
         MatFormFieldStubComponent,
         MatErrorStubComponent,
-        MatLabelStubComponent
+        MatLabelStubComponent,
+        WrapperComponent
       ],
       imports: [
         ReactiveFormsModule, // for the [formGroup] directive
@@ -40,8 +41,8 @@ describe('AddPostComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AddPostComponent);
-    component = fixture.componentInstance;
+    fixture = TestBed.createComponent(WrapperComponent);
+    component = fixture.debugElement.children[0].componentInstance;
     fixture.detectChanges();
   });
 
@@ -89,11 +90,12 @@ describe('AddPostComponent', () => {
     testPost.title = 'A post title';
     testPost.body = 'A post body';
     updateForm(testPost.title, testPost.body);
+    fixture.componentInstance.forumId = 3;
 
     clickSubmitButton();
 
-    // the method should called with the correct value
-    expect(postServiceStub.addPost).toHaveBeenCalledWith(testPost);
+    // the method should called with the correct value (adding in the forum id!)
+    expect(postServiceStub.addPost).toHaveBeenCalledWith(Object.assign(testPost, {forumId: 3}));
   });
 
 
@@ -164,6 +166,14 @@ describe('AddPostComponent', () => {
   });
 });
 
+@Component({
+  // tslint:disable-next-line:component-selector
+  selector: 'wrapper',
+  template: '<app-add-post [forumId]="forumId"></app-add-post>'
+})
+class WrapperComponent {
+  forumId = 3;
+}
 
 // Material stubs:
 
