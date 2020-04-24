@@ -26,6 +26,11 @@ export class PostService {
   }
 
   addPost(post: Post): Observable<Post> {
+    /*
+      TODO - alter to conform with how a POST request would actually be responded
+
+      In reality a post request responds 201 and the location of the newly created resource
+     */
     if (post.id) {
       throw new Error('Post cannot already contain as this is assigned by the server.');
     }
