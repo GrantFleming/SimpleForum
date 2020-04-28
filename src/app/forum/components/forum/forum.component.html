@@ -1,5 +1,11 @@
-<div class="container">
-  <h2>Forum</h2>
-  <app-post-feed #feedComponent [forumId]=forumId></app-post-feed>
-  <app-add-post (newPostEvent)="feedComponent.addPost($event)" [forumId]="forumId"></app-add-post>
+<div *ngIf="forum; else loading" class="container">
+  <h2 class="forum-name">{{forum.name}}</h2>
+  <p class="forum-desc">{{forum.description}}</p>
+  <app-post-feed #feedComponent [forumId]=forum.id></app-post-feed>
+  <app-add-post (newPostEvent)="feedComponent.addPost($event)" [forumId]="forum.id"></app-add-post>
 </div>
+<ng-template #loading>
+  <div class="container loading-widget">
+    We are loading your content
+  </div>
+</ng-template>
