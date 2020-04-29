@@ -37,7 +37,9 @@ export class ForumService {
   }
 
   /**
-   *  Returns a list of forums, maybe from the cache maybe from the server.
+   *  Returns a list of forums, maybe from the cache maybe from the server,
+   *  maybe from the cache then later from the server. The returned Observable
+   *  can make a maximum of two emissions.
    *
    *  There are four possible cases this method handles:
    *
@@ -95,7 +97,9 @@ export class ForumService {
   }
 
   /**
-   *  Returns a Forums, maybe from the cache maybe from the server.
+   *  Returns a Forums, maybe from the cache maybe from the server, maybe
+   *  from the cache then the server. The returned Observable can make a
+   *  maximum of two emissions
    *
    *  There are four possible cases this method handles:
    *
