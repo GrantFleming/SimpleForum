@@ -1,3 +1,11 @@
 <div class="container">
-  <app-post *ngFor="let post of posts; let last = last;" [class.last]="last" [post]="post"></app-post>
+  <ng-container *ngIf="posts && posts.length > 0  else noPostsNotification">
+    <app-post *ngFor="let post of posts; let last = last;" [class.last]="last" [post]="post"></app-post>
+  </ng-container>
+  <ng-template #noPostsNotification>
+    <div class="noPostNotification">
+      <p>There are no posts in this forum yet.</p>
+      <p>You should add one!</p>
+    </div>
+  </ng-template>
 </div>

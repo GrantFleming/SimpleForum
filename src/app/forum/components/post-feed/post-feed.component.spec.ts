@@ -130,6 +130,32 @@ describe('PostFeedComponent', () => {
       }
     ).toThrow();
   });
+
+  it('should display the no-posts notification if there are no posts', fakeAsync(() => {
+    fixture.detectChanges();  // ngOnInit
+    tick();                   // get the posts (but the returned list is empty)
+    component.posts = [];     // get rid of all the posts
+    fixture.detectChanges();  // update the view
+
+    // There should be no app-posts
+    let appPosts: DebugElement[] = fixture.debugElement.queryAll(By.css('app-post'));
+    expect(appPosts.length).toBe(0);
+
+    let noPostNotificationDe = fixture.debugElement.query(By.css('.noPostNotification'));
+    expect(noPostNotificationDe).toBeTruthy();
+    // I don't care to unit test the exact nature of the error message. Just the one is shown and is non-empty
+    expect(noPostNotificationDe.nativeElement.textContent).toBeTruthy();
+
+    // should also display the error message for null
+    component.posts = null;
+    fixture.detectChanges();
+    appPosts = fixture.debugElement.queryAll(By.css('app-post'));
+    expect(appPosts.length).toBe(0);
+    noPostNotificationDe = fixture.debugElement.query(By.css('.noPostNotification'));
+    expect(noPostNotificationDe).toBeTruthy();
+    // I don't care to unit test the exact nature of the error message. Just the one is shown and is non-empty
+    expect(noPostNotificationDe.nativeElement.textContent).toBeTruthy();
+  }));
 });
 
 
