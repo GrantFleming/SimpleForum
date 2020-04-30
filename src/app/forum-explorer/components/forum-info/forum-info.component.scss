@@ -1,0 +1,28 @@
+.container {
+  margin: 0 -0.5rem;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+
+  mat-card {
+    flex-basis: 400px;
+    flex-grow: 1;
+    margin: 0 0.5rem;
+  }
+
+  button {
+    font-size: 1.2rem;
+    width: 6rem;
+    margin: 0 0.5rem;
+
+    @media (max-width: 599.9px) {
+      transform: translate(-35px, -10px);
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

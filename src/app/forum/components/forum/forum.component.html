@@ -1,3 +1,7 @@
+<div class="control-bar">
+  <button [routerLink]="['/forums']" class="forum-explorer-button" color="primary" mat-raised-button>Forum Explorer
+  </button>
+</div>
 <div *ngIf="forum; else loading" class="container">
   <h2 class="forum-name">{{forum.name}}</h2>
   <p class="forum-desc">{{forum.description}}</p>

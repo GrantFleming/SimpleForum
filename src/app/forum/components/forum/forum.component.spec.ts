@@ -1,10 +1,8 @@
 import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 
 import {ForumComponent} from './forum.component';
-import {HttpClientModule} from '@angular/common/http';
-import {ReactiveFormsModule} from '@angular/forms';
-import {Component, Input} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, Directive, HostListener, Input} from '@angular/core';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable, of} from 'rxjs';
 import {By} from '@angular/platform-browser';
 import {Post} from '../../models/post';
@@ -33,15 +31,16 @@ describe('ForumComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, ReactiveFormsModule],
       declarations: [
         ForumComponent,
         MockPostFeedComponent,
-        MockAddPostComponent
+        MockAddPostComponent,
+        RouterLinkDirectiveStub
       ],
       providers: [
         {provide: ActivatedRoute, useValue: routeSpy},
-        {provide: ForumService, useValue: mockForumService}
+        {provide: ForumService, useValue: mockForumService},
+        {provide: RouterLink, useValue: RouterLinkDirectiveStub}
       ]
     })
       .compileComponents();
@@ -115,6 +114,19 @@ describe('ForumComponent', () => {
     const displayedDesc = forumDescDe.nativeElement.textContent;
     expect(displayedDesc).toEqual(testForum.description);
   }));
+
+  it('should contain a button to get back to the forum explorer', () => {
+    const forumExplorerButtonDe = fixture.debugElement.query(By.css('.control-bar .forum-explorer-button'));
+    expect(forumExplorerButtonDe).toBeTruthy();
+  });
+
+  it('should navigate to "/forums" when the forum explorer button is clicked', fakeAsync(() => {
+    fixture.detectChanges();
+    const forumExplorerButtonDe = fixture.debugElement.query(By.css('.control-bar .forum-explorer-button'));
+    forumExplorerButtonDe.nativeElement.click();
+    const routerLink = forumExplorerButtonDe.injector.get(RouterLinkDirectiveStub);
+    expect(routerLink.navigatedTo).toEqual(['/forums']);
+  }));
 });
 
 @Component({
@@ -135,4 +147,19 @@ class MockPostFeedComponent {
 })
 class MockAddPostComponent {
   @Input() forumId: number;
+}
+
+@Directive({
+  // tslint:disable-next-line:directive-selector
+  selector: '[routerLink]'
+})
+// tslint:disable-next-line:directive-class-suffix
+export class RouterLinkDirectiveStub {
+  @Input('routerLink') linkParams: any;
+  navigatedTo: any = null;
+
+  @HostListener('click')
+  onClick() {
+    this.navigatedTo = this.linkParams;
+  }
 }
