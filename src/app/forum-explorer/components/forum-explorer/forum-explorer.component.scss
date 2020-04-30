@@ -7,3 +7,13 @@ app-forum-list {
   // to undo the text-align centre in the post feed
   text-align: left;
 }
+
+.spacer {
+  margin-bottom: 1em;
+}
+
+app-add-forum {
+  max-width: 700px;
+  width: 100%;
+  display: inline-block;
+}

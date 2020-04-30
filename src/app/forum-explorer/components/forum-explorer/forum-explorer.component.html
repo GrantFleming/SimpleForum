@@ -1,3 +1,5 @@
 <div class="container">
-  <app-forum-list></app-forum-list>
+  <app-forum-list #forumListComponent></app-forum-list>
+  <div class="spacer"></div>
+  <app-add-forum (newForumEvent)="forumListComponent.addForum($event)"></app-add-forum>
 </div>

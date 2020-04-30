@@ -1,29 +1,29 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {AddPostComponent} from './add-post.component';
 import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
-import {PostService} from '../../services/post.service';
 import {asyncData} from '../../../test_utils/test_async_utils';
-import {Post} from '../../models/post';
 import {Component, DebugElement} from '@angular/core';
 import {By} from '@angular/platform-browser';
+import {ForumService} from '../../../forum/services/forum.service';
+import {AddForumComponent} from './add-forum.component';
+import {Forum} from '../../../forum/models/Forum';
 
-describe('AddPostComponent', () => {
-  let postServiceStub: Partial<PostService>;
+describe('AddForumComponent', () => {
+  let forumServiceStub: Partial<ForumService>;
 
-  let component: AddPostComponent;
+  let component: AddForumComponent;
   let fixture: ComponentFixture<WrapperComponent>;
 
   beforeEach(async(() => {
-    postServiceStub = {
+    forumServiceStub = {
       // stub the server behaviour of returning the post object but with an id
-      addPost: (post: Post) => asyncData<Post>(Object.assign({id: 1}, post))
+      addForum: (forum: Forum) => asyncData<Forum>(Object.assign({id: 1}, forum))
     };
-    spyOn(postServiceStub, 'addPost').and.callThrough();
+    spyOn(forumServiceStub, 'addForum').and.callThrough();
 
     TestBed.configureTestingModule({
       declarations: [
-        AddPostComponent,
+        AddForumComponent,
         MatFormFieldStubComponent,
         MatErrorStubComponent,
         MatLabelStubComponent,
@@ -34,7 +34,7 @@ describe('AddPostComponent', () => {
       ],
       providers: [
         FormBuilder,
-        {provide: PostService, useValue: postServiceStub}
+        {provide: ForumService, useValue: forumServiceStub}
       ]
     })
       .compileComponents();
@@ -46,13 +46,13 @@ describe('AddPostComponent', () => {
     fixture.detectChanges();
   });
 
-  function updateForm(title: string = '', body: string = '') {
-    component.newPostForm.controls.title.setValue(title);
-    component.newPostForm.controls.body.setValue(body);
-    component.newPostForm.controls.title.markAsDirty();
-    component.newPostForm.controls.title.markAsTouched();
-    component.newPostForm.controls.body.markAsDirty();
-    component.newPostForm.controls.body.markAsTouched();
+  function updateForm(name: string = '', description: string = '') {
+    component.newForumForm.controls.name.setValue(name);
+    component.newForumForm.controls.description.setValue(description);
+    component.newForumForm.controls.name.markAsDirty();
+    component.newForumForm.controls.name.markAsTouched();
+    component.newForumForm.controls.description.markAsDirty();
+    component.newForumForm.controls.description.markAsTouched();
   }
 
   function clickSubmitButton() {
@@ -66,59 +66,67 @@ describe('AddPostComponent', () => {
   });
 
 
-  it('should create a form that has fields for each element of a Post (except id)', () => {
-    const controls = component.newPostForm.controls;
-    // -1 as the form should not render a control for the ID
-    expect(Object.keys(controls).length).toBe(Object.getOwnPropertyNames(new Post()).length, 'doesn\'t have the right number of controls');
+  it('should create a form that has fields for each element of a Forum (except id)', () => {
+    const controls = component.newForumForm.controls;
+    // so the type checker will remind us if we ever update the Forum model
+    const emptyForum: Forum = {id: null, name: null, description: null};
+    expect(Object.keys(controls).length)
+      .toBe(
+        // -1 as the form should not render a control for the ID
+        Object.getOwnPropertyNames(emptyForum as Forum).length - 1,
+        'doesn\'t have the right number of controls');
 
-    for (const key of Object.keys(new Post())) {
+    for (const key of Object.keys(emptyForum as Forum)) {
+      if (key === 'id') {
+        continue;
+      }
       expect(Object.keys(controls)).toContain(key, 'doesn\'t contain a control for some property of Post');
     }
   });
 
 
   it('should initialize the form with empty fields', () => {
-    const controls = component.newPostForm.controls;
+    const controls = component.newForumForm.controls;
     for (const key of Object.keys(controls)) {
       expect(controls[key].value).toBe('');
     }
   });
 
 
-  it('should submit a post to the postService on submit', () => {
-    const testPost = new Post();
-    testPost.title = 'A post title';
-    testPost.body = 'A post body';
-    updateForm(testPost.title, testPost.body);
-    fixture.componentInstance.forumId = 3;
-
+  it('should submit a post to the forumService on submit', () => {
+    const testForum: Forum = {
+      id: null,
+      name: 'A forum title',
+      description: 'A forum description'
+    };
+    updateForm(testForum.name, testForum.description);
     clickSubmitButton();
 
-    // the method should called with the correct value (adding in the forum id!)
-    expect(postServiceStub.addPost).toHaveBeenCalledWith(Object.assign(testPost, {forumId: 3}));
+    // the method should called with the correct value
+    expect(forumServiceStub.addForum).toHaveBeenCalledWith(testForum);
   });
 
 
-  it('should not submit an invalid form to the postService', () => {
+  it('should not submit an invalid form to the forumService', () => {
     // should not submit a form with empty fields
     updateForm('', 'x');
     clickSubmitButton();
-    expect(postServiceStub.addPost).not.toHaveBeenCalled();
+    expect(forumServiceStub.addForum).not.toHaveBeenCalled();
     updateForm('x', '');
     clickSubmitButton();
-    expect(postServiceStub.addPost).not.toHaveBeenCalled();
+    expect(forumServiceStub.addForum).not.toHaveBeenCalled();
 
-    // should not submit a form with an overly long title
+    // should not submit a form with an overly long name
     updateForm('x'.repeat(129), 'x');
     clickSubmitButton();
-    expect(postServiceStub.addPost).not.toHaveBeenCalled();
+    expect(forumServiceStub.addForum).not.toHaveBeenCalled();
   });
 
 
   it('should clear the form after a valid submission', () => {
     updateForm('x', 'x');
     clickSubmitButton();
-    const controls = component.newPostForm.controls;
+    const controls = component.newForumForm.controls;
 
     /*
     Every form control should have a null value after reset and should
@@ -141,7 +149,7 @@ describe('AddPostComponent', () => {
   it('should not clear the form after an invalid submission', () => {
     updateForm('', 'x'); // invalid lack of title
     clickSubmitButton();
-    const controls = component.newPostForm.controls;
+    const controls = component.newForumForm.controls;
     // the form controls should not contain null values
     for (const key of Object.keys(controls)) {
       expect(controls[key].value).not.toBe(null);
@@ -151,8 +159,8 @@ describe('AddPostComponent', () => {
 
   it('should not display errors for a valid fields', () => {
     updateForm('x', 'x');
-    expect(component.titleErrors.length).toBe(0);
-    expect(component.bodyErrors.length).toBe(0);
+    expect(component.nameErrors.length).toBe(0);
+    expect(component.descriptionErrors.length).toBe(0);
   });
 
 
@@ -169,10 +177,9 @@ describe('AddPostComponent', () => {
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'wrapper',
-  template: '<app-add-post [forumId]="forumId"></app-add-post>'
+  template: '<app-add-forum></app-add-forum>'
 })
 class WrapperComponent {
-  forumId = 3;
 }
 
 // Material stubs:

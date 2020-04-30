@@ -48,4 +48,18 @@ export class ForumListComponent implements OnInit, OnDestroy {
         complete: () => this.nextUpdate = setTimeout(() => this._getForums(), 5000)
       });
   }
+
+  /**
+   * Add a new forum to the list.
+   *
+   * Useful to instantly add forums on creating rather than waiting
+   * for subsequent get requests after post request.
+   *
+   * @param forum to be added to the list
+   */
+  addForum(forum: Forum) {
+    if (forum) {
+      this.forums.push(forum);
+    }
+  }
 }

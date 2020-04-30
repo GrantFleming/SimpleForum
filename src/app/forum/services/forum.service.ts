@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {concat, EMPTY, Observable, of} from 'rxjs';
 import {Forum} from '../models/Forum';
 import {environment} from '../../../environments/environment';
-import {defaultIfEmpty, filter, mergeMap, pluck, tap} from 'rxjs/operators';
+import {defaultIfEmpty, filter, map, pluck, tap} from 'rxjs/operators';
 
 const cudOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'}),
@@ -155,8 +155,10 @@ export class ForumService {
   }
 
   /**
-   * Posts a new forum to be created on the server and then gets the newly
-   * created resource on 201 response. Returns null on a non-201 response.
+   * Posts a new forum to be created on the server and then returns the newly
+   * created resource from the body of a 201 response.
+   *
+   * Returns null on a non-201 response.
    *
    * Throws an error if the newForum parameter has an id as ids can only be
    * issued by the server
@@ -174,13 +176,18 @@ export class ForumService {
       newForum,
       cudOptions);
 
-    // successful 201 responses result in getting the newly created forum
+    // successful 201 responses result in returning the newly created form
     // other responses elicit a return of null
     return postRequest$.pipe(
-      mergeMap(response =>
-        response.status === 201 ?
-          this.getForum(parseInt(response.headers.get('Location').split('/').pop(), 10)) :
-          of(null)
+      map(response => {
+          if (response.status === 201) {
+            // on successful response, update the cache and return the value
+            this.cache.set(response.body.id, [response.body, new Date(0)]);
+            return response.body;
+          } else {
+            return null;
+          }
+        }
       ));
   }
 }

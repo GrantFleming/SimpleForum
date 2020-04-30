@@ -6,15 +6,26 @@ import {ForumInfoComponent} from './components/forum-info/forum-info.component';
 import {MatCardModule} from '@angular/material/card';
 import {RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
+import {AddForumComponent} from './components/add-forum/add-forum.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatInputModule} from '@angular/material/input';
 
 
 @NgModule({
-  declarations: [ForumExplorerComponent, ForumListComponent, ForumInfoComponent],
+  declarations: [
+    ForumExplorerComponent,
+    ForumListComponent,
+    ForumInfoComponent,
+    AddForumComponent
+  ],
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatButtonModule,
     MatCardModule,
-    RouterModule,
-    MatButtonModule
+    RouterModule
   ]
 })
 export class ForumExplorerModule {
