@@ -20,6 +20,7 @@ export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // TODO - this doesn't need to be checked so often can be checked elsewhere
     this._checkAttributes();
     this._getPosts();
   }
