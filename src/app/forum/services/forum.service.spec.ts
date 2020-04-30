@@ -298,7 +298,7 @@ describe('ForumService \'addForum\' method ', () => {
 
   function successfulPostResponse(forum: Forum) {
     const responseHeaders = new HttpHeaders().set('Location', `/${forum.id}`);
-    return new HttpResponse({headers: responseHeaders, status: 201});
+    return new HttpResponse({body: forum, headers: responseHeaders, status: 201});
   }
 
   beforeEach(() => {
@@ -320,15 +320,12 @@ describe('ForumService \'addForum\' method ', () => {
     expect(() => service.addForum(invalidForum)).toThrow();
   });
 
-  it('should get the resource after successful creation and 201 received', fakeAsync(() => {
+  it('should return the new resource after successful creation and 201 received', fakeAsync(() => {
+    // the server should return the newly created forum in the response body
+
     const newForumId = 1;
-    const returnedForum = Object.assign({}, exampleForum);
-    returnedForum.id = newForumId;
+    const returnedForum = Object.assign({id: newForumId}, exampleForum);
     mockHttpClient.post.and.returnValue(asyncData(successfulPostResponse(returnedForum)));
-    mockHttpClient.get.withArgs(
-      `${environment.backendHost}/forums/${newForumId}`,
-      jasmine.anything()
-    ).and.returnValue(asyncData(new HttpResponse({body: returnedForum, status: 200})));
 
     let emissions = 0;
     let completed = false;
@@ -341,9 +338,6 @@ describe('ForumService \'addForum\' method ', () => {
       () => completed = true
     );
     tick();
-    expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/forums/${newForumId}`,
-      jasmine.anything());
     expect(emissions).toBe(1);
     expect(completed).toBeTrue();
   }));

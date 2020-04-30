@@ -2,7 +2,8 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {ForumExplorerComponent} from './forum-explorer.component';
 import {By} from '@angular/platform-browser';
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
+import {Forum} from '../../../forum/models/Forum';
 
 describe('ForumExplorerComponent', () => {
   let component: ForumExplorerComponent;
@@ -12,7 +13,8 @@ describe('ForumExplorerComponent', () => {
     TestBed.configureTestingModule({
       declarations: [
         ForumExplorerComponent,
-        MockForumListComponent
+        MockForumListComponent,
+        MockAddForumComponent
       ]
     })
       .compileComponents();
@@ -32,6 +34,30 @@ describe('ForumExplorerComponent', () => {
     const forumListDe = fixture.debugElement.query(By.css('app-forum-list'));
     expect(forumListDe).toBeTruthy();
   });
+
+  it('should display an AddForumComponent', () => {
+    const addForumDe = fixture.debugElement.query(By.css('app-add-forum'));
+    expect(addForumDe).toBeTruthy();
+  });
+
+  it('should call addForum in the ForumList on a newForumEvent passing the new forum', () => {
+    const eventEmitter = fixture.debugElement
+      .query(By.css('app-add-forum'))
+      .componentInstance
+      .newForumEvent;
+    const mockForumList = fixture.debugElement
+      .query(By.css('app-forum-list'))
+      .componentInstance;
+
+    const testForum: Forum = {
+      id: null,
+      name: null,
+      description: null
+    };
+
+    eventEmitter.emit(testForum);
+    expect(mockForumList.lastAddedForum).toBe(testForum);
+  });
 });
 
 @Component({
@@ -39,4 +65,17 @@ describe('ForumExplorerComponent', () => {
   template: ''
 })
 class MockForumListComponent {
+  private lastAddedForum: Forum;
+
+  addForum(forum: Forum) {
+    this.lastAddedForum = forum;
+  }
+}
+
+@Component({
+  selector: 'app-add-forum',
+  template: ''
+})
+class MockAddForumComponent {
+  @Output() newForumEvent = new EventEmitter();
 }

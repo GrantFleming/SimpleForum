@@ -1,0 +1,16 @@
+<form (ngSubmit)="onSubmit(newForumForm.value)" [formGroup]="newForumForm">
+
+  <mat-form-field>
+    <mat-label>Forum name</mat-label>
+    <input formControlName="name" id="name" matInput type="text">
+    <mat-error>{{nameErrors}}</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Forum Description</mat-label>
+    <textarea formControlName="description" id="description" matInput type="text"></textarea>
+    <mat-error>{{descriptionErrors}}</mat-error>
+  </mat-form-field>
+
+  <button class="button" color="primary" mat-raised-button type="submit">Create Forum</button>
+</form>

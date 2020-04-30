@@ -11,7 +11,7 @@ describe('ForumListComponent', () => {
   let component: ForumListComponent;
   let fixture: ComponentFixture<ForumListComponent>;
 
-  const testForums = [
+  const testForums: Forum[] = [
     {
       id: 1,
       name: 'name1',
@@ -39,7 +39,7 @@ describe('ForumListComponent', () => {
   }));
 
   beforeEach(() => {
-    forumServiceSpy.getForums.and.returnValue(asyncData(testForums));
+    forumServiceSpy.getForums.and.returnValue(asyncData(testForums.slice()));
     fixture = TestBed.createComponent(ForumListComponent);
     component = fixture.componentInstance;
   });
@@ -80,11 +80,11 @@ describe('ForumListComponent', () => {
     tick();                   // get complete from service
     fixture.detectChanges();  // update the view
 
-    const newForums = [
+    const newForums: Forum[] = [
       {
         id: 9,
         name: 'new name',
-        descriptions: 'new description'
+        description: 'new description'
       }
     ];
     forumServiceSpy.getForums.and.returnValue(asyncData(newForums));
@@ -117,6 +117,48 @@ describe('ForumListComponent', () => {
     expect(forumInfoComponentsDes.map(value => value.componentInstance.forum)).toEqual(moreNewForums);
 
     fixture.destroy(); // to remove it's update timer from the queue
+  }));
+
+  it('should add valid forums to the view via addForum', fakeAsync(() => {
+    fixture.detectChanges();  // ngOnInit
+    tick();                   // get forums from service
+    fixture.detectChanges();  // update the view with initial forums
+
+    const newForum: Forum = {
+      id: 666,
+      name: 'a newer forum',
+      description: 'a newer description'
+    };
+
+    component.addForum(newForum);
+    fixture.detectChanges();
+    const forumInfoComponentsDes = fixture.debugElement.queryAll(By.css('app-forum-info'));
+    expect(forumInfoComponentsDes.length).toBe(testForums.length + 1);
+    expect(forumInfoComponentsDes.map(value => value.componentInstance.forum)).toEqual(testForums.concat(newForum));
+
+    fixture.destroy(); // remove any queued update timer
+  }));
+
+  it('should not add null or undefined forums', fakeAsync(() => {
+    fixture.detectChanges();  // ngOnInit
+    tick();                   // get forums from service
+    fixture.detectChanges();  // update the view with initial forums
+
+    // a new component should not be created for null
+    component.addForum(null);
+    fixture.detectChanges();
+    let forumInfoComponentsDes = fixture.debugElement.queryAll(By.css('app-forum-info'));
+    expect(forumInfoComponentsDes.length).toBe(testForums.length);
+    expect(forumInfoComponentsDes.map(value => value.componentInstance.forum)).toEqual(testForums);
+
+    // nor for undefined
+    component.addForum(undefined);
+    fixture.detectChanges();
+    forumInfoComponentsDes = fixture.debugElement.queryAll(By.css('app-forum-info'));
+    expect(forumInfoComponentsDes.length).toBe(testForums.length);
+    expect(forumInfoComponentsDes.map(value => value.componentInstance.forum)).toEqual(testForums);
+
+    fixture.destroy(); // remove any queued update timer
   }));
 });
 
