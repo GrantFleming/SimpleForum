@@ -1,4 +1,6 @@
 <div class="container">
+  <h2>Forum Explorer</h2>
+  <hr>
   <app-forum-list #forumListComponent></app-forum-list>
   <div class="spacer"></div>
   <app-add-forum (newForumEvent)="forumListComponent.addForum($event)"></app-add-forum>

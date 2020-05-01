@@ -1,0 +1,13 @@
+.siteTitle {
+  margin-top: 0.5em;
+  margin-left: 0.5em;
+
+  &:before {
+    content: '\2630';
+    margin-right: 0.5em;
+  }
+
+  .super-light {
+    font-weight: 100;
+  }
+}
