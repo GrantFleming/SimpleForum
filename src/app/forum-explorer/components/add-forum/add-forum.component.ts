@@ -41,25 +41,12 @@ export class AddForumComponent implements OnInit {
   }
 
   onSubmit(postData) {
-    if (!this.newForumForm.valid) {
-      return;
-    }
-
     // submit new post to server and emit the event so the explorer can add
     // the newly created forum to the UI
-    const newForum: Forum = {
-      id: null,
-      name: postData.name,
-      description: postData.description
-    };
+    const newForum: Forum = Object.assign({id: null}, postData);
     this.forumService.addForum(newForum).subscribe(
       createdForum => this.newForumEvent.emit(createdForum)
     );
-
-    // and clear the form
-    this.newForumForm.reset();
-    // must reset the actual form too in order to reset it's 'isSubmitted' status
-    this.form.resetForm();
   }
 
 }

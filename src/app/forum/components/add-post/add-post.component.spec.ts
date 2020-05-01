@@ -1,7 +1,7 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {AddPostComponent} from './add-post.component';
-import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, FormGroupDirective, ReactiveFormsModule} from '@angular/forms';
 import {PostService} from '../../services/post.service';
 import {asyncData} from '../../../test_utils/test_async_utils';
 import {Post} from '../../models/post';
@@ -30,7 +30,7 @@ describe('AddPostComponent', () => {
         WrapperComponent
       ],
       imports: [
-        ReactiveFormsModule, // for the [formGroup] directive
+        ReactiveFormsModule, // for the [formGroup] directive,
       ],
       providers: [
         FormBuilder,
@@ -53,6 +53,7 @@ describe('AddPostComponent', () => {
     component.newPostForm.controls.title.markAsTouched();
     component.newPostForm.controls.body.markAsDirty();
     component.newPostForm.controls.body.markAsTouched();
+    fixture.detectChanges();
   }
 
   function clickSubmitButton() {
@@ -86,6 +87,8 @@ describe('AddPostComponent', () => {
 
 
   it('should submit a post to the postService on submit', () => {
+    spyOn(component, 'onSubmit').and.callThrough();
+
     const testPost = new Post();
     testPost.title = 'A post title';
     testPost.body = 'A post body';
@@ -93,9 +96,8 @@ describe('AddPostComponent', () => {
     fixture.componentInstance.forumId = 3;
 
     clickSubmitButton();
-
     // the method should called with the correct value (adding in the forum id!)
-    expect(postServiceStub.addPost).toHaveBeenCalledWith(Object.assign(testPost, {forumId: 3}));
+    expect(postServiceStub.addPost).toHaveBeenCalledWith(Object.assign({forumId: 3}, testPost));
   });
 
 
@@ -114,12 +116,10 @@ describe('AddPostComponent', () => {
     expect(postServiceStub.addPost).not.toHaveBeenCalled();
   });
 
-
   it('should clear the form after a valid submission', () => {
     updateForm('x', 'x');
     clickSubmitButton();
     const controls = component.newPostForm.controls;
-
     /*
     Every form control should have a null value after reset and should
     be rendered as the empty string
@@ -134,7 +134,8 @@ describe('AddPostComponent', () => {
   it('should reset the forms submitted status after a valid submission', () => {
     updateForm('x', 'x');
     clickSubmitButton();
-    expect(component.form.submitted).toBeFalse();
+    const formGroupDirective: FormGroupDirective = fixture.debugElement.query(By.css('form')).injector.get(FormGroupDirective);
+    expect(formGroupDirective.submitted).toBeFalse();
   });
 
 

@@ -1,6 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {FormBuilder, FormGroup, FormGroupDirective, Validators} from '@angular/forms';
-import {Post} from '../../models/post';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {PostService} from '../../services/post.service';
 
 @Component({
@@ -12,7 +11,6 @@ export class AddPostComponent implements OnInit {
 
   @Input() forumId: number;
   @Output() newPostEvent = new EventEmitter();
-  @ViewChild(FormGroupDirective) form;
   newPostForm: FormGroup;
 
   constructor(private fb: FormBuilder, private postService: PostService) {
@@ -42,24 +40,12 @@ export class AddPostComponent implements OnInit {
   }
 
   onSubmit(postData) {
-    if (!this.newPostForm.valid) {
-      // TODO - push a message when there is some kind of notification system
-      return;
-    }
-
     // submit new post to server and emit the event so the forum can add
     // the newly created post to the UI
-    const newPost = new Post();
-    newPost.forumId = this.forumId;
-    newPost.title = postData.title;
-    newPost.body = postData.body;
+    const newPost = Object.assign({forumId: this.forumId}, postData);
     this.postService.addPost(newPost).subscribe(
+      // must wait on the newly created post as the server assigns the id
       createdPost => this.newPostEvent.emit(createdPost)
     );
-
-    // and clear the form
-    this.newPostForm.reset();
-    // must reset the actual form too in order to reset it's 'isSubmitted' status
-    this.form.resetForm();
   }
 }

@@ -1,4 +1,4 @@
-<form (ngSubmit)="onSubmit(newForumForm.value)" [formGroup]="newForumForm">
+<form #ngForm="ngForm" (ngSubmit)="onSubmit(newForumForm.value); ngForm.resetForm();" [formGroup]="newForumForm">
 
   <mat-form-field>
     <mat-label>Forum name</mat-label>
@@ -12,5 +12,7 @@
     <mat-error>{{descriptionErrors}}</mat-error>
   </mat-form-field>
 
-  <button class="button" color="primary" mat-raised-button type="submit">Create Forum</button>
+  <button [disabled]="newForumForm.invalid" class="button" color="primary" mat-raised-button type="submit">Create
+    Forum
+  </button>
 </form>
