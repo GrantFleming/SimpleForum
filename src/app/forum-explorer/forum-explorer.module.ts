@@ -7,7 +7,7 @@ import {MatCardModule} from '@angular/material/card';
 import {RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {AddForumComponent} from './components/add-forum/add-forum.component';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 
 
@@ -20,7 +20,6 @@ import {MatInputModule} from '@angular/material/input';
   ],
   imports: [
     CommonModule,
-    FormsModule,
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,

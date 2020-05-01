@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms';
 import {PostFeedComponent} from './components/post-feed/post-feed.component';
 import {PostComponent} from './components/post/post.component';
 import {AddPostComponent} from './components/add-post/add-post.component';
@@ -20,7 +20,6 @@ import {RouterModule} from '@angular/router';
   ],
   imports: [
     CommonModule,
-    FormsModule,
     ReactiveFormsModule,
     MatCardModule,
     MatGridListModule,

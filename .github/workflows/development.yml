@@ -2,7 +2,7 @@ name: Unit tests
 
 on:
   push:
-    branches: [ development ]
+    branches: [ dev ]
 
 jobs:
   build_and_test:

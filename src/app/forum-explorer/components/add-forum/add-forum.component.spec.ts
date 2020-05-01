@@ -53,6 +53,7 @@ describe('AddForumComponent', () => {
     component.newForumForm.controls.name.markAsTouched();
     component.newForumForm.controls.description.markAsDirty();
     component.newForumForm.controls.description.markAsTouched();
+    fixture.detectChanges(); // to enable/disable the submit button accordingly
   }
 
   function clickSubmitButton() {
