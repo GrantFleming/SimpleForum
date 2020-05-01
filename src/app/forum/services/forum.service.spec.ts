@@ -4,7 +4,7 @@ import {ForumService} from './forum.service';
 import {HttpHeaders, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
 import {asyncData} from '../../test_utils/test_async_utils';
-import {EMPTY} from 'rxjs';
+import {defer, EMPTY} from 'rxjs';
 import {Forum} from '../models/Forum';
 
 describe('ForumService', () => {
@@ -107,7 +107,7 @@ describe('ForumService \'getForums\' method', () => {
   }));
 
   it('should return [] if cache is empty and it receives a non-200 response', fakeAsync(() => {
-    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({status: 304})));
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({status: 404})));
     let emissions = 0;
     let completed = false;
     service.getForums().subscribe(
@@ -343,23 +343,18 @@ describe('ForumService \'addForum\' method ', () => {
   }));
 
   it('should return null if server returns response other than 201', fakeAsync(() => {
-    const headers = new HttpHeaders().set('Location', '/9');
-    mockHttpClient.post.and.returnValue(asyncData(new HttpResponse({body: {id: 9}, headers, status: 404})));
-    mockHttpClient.get.and.returnValue(asyncData('any'));
+    mockHttpClient.post.and.returnValue(asyncData(new HttpResponse({status: 400})));
 
     let emissions = 0;
-    let completed = false;
     service.addForum(exampleForum).subscribe(
       forum => {
         expect(forum).toBeNull();
         emissions++;
       },
-      error => fail('should not error here: ' + error),
-      () => completed = true
+      error => fail('should not error here: ' + error)
     );
     tick();
     expect(emissions).toBe(1);
-    expect(completed).toBeTrue();
   }));
 
   it('should cache a successful response', fakeAsync(() => {
@@ -367,10 +362,7 @@ describe('ForumService \'addForum\' method ', () => {
     const returnedForum = Object.assign({}, exampleForum);
     returnedForum.id = newForumId;
     mockHttpClient.post.and.returnValue(asyncData(successfulPostResponse(returnedForum)));
-    mockHttpClient.get.withArgs(
-      `${environment.backendHost}/forums/${newForumId}`,
-      jasmine.anything()
-    ).and.returnValue(asyncData(new HttpResponse({body: returnedForum, status: 200})));
+    mockHttpClient.get.and.returnValue(defer(() => EMPTY)); // we don't use the actual value
 
     service.addForum(exampleForum).subscribe();
     tick(); // cache should be populated with response
