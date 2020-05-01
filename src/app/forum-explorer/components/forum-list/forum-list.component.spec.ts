@@ -73,7 +73,6 @@ describe('ForumListComponent', () => {
     fixture.destroy();
   }));
 
-  // TO DO
   it('should update the forums every 5 seconds', fakeAsync(() => {
     fixture.detectChanges();  // ngOnInit
     tick();                   // get forums from service

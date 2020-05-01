@@ -43,11 +43,10 @@ describe('PostFeedComponent', () => {
     }).compileComponents();
   }));
 
-
   beforeEach(() => {
     // Create the WrapperComponent as this injects the @Input()
     fixture = TestBed.createComponent(WrapperComponent);
-    // Then get the component instance as a child of it's DebugElement
+    // Then get the component instance as a child of its DebugElement
     component = fixture.debugElement.children[0].componentInstance;
   });
 
@@ -56,14 +55,15 @@ describe('PostFeedComponent', () => {
     expect(component).toBeTruthy();
   });
 
-
   it('should have no app-post elements before the server info arrives', fakeAsync(() => {
     fixture.detectChanges(); // OnInit
     // Before the response from the service arrives check no posts are listed:
     const appPosts: DebugElement[] = fixture.debugElement.queryAll(By.css('app-post'));
     expect(appPosts).toEqual([]);
-  }));
 
+    tick();
+    fixture.destroy(); // to remove it's update timer from the queue
+  }));
 
   it('should create an app-post component for each post it retrieves from the server', fakeAsync(() => {
     fixture.detectChanges(); // onInit
@@ -73,8 +73,9 @@ describe('PostFeedComponent', () => {
 
     const appPosts: DebugElement[] = fixture.debugElement.queryAll(By.css('app-post'));
     expect(appPosts.length).toBe(2);
-  }));
 
+    fixture.destroy(); // to remove it's update timer from the queue
+  }));
 
   it('should pass the posts to the PostComponent children', fakeAsync(() => {
     fixture.detectChanges();
@@ -86,6 +87,8 @@ describe('PostFeedComponent', () => {
     const appPosts: DebugElement[] = fixture.debugElement.queryAll(By.css('app-post'));
     expect(appPosts[0].componentInstance.post).toBe(expectedPosts[0]);
     expect(appPosts[1].componentInstance.post).toBe(expectedPosts[1]);
+
+    fixture.destroy(); // to remove it's update timer from the queue
   }));
 
   it('#addPost should add another post to the component', fakeAsync(() => {
@@ -94,8 +97,9 @@ describe('PostFeedComponent', () => {
 
     component.addPost({id: 3, forumId: 1, title: 'a third post', body: 'a third body'});
     expect(component.posts.length).toBe(3);
-  }));
 
+    fixture.destroy(); // to remove it's update timer from the queue
+  }));
 
   it('#addPost should result in a new post being rendered in the template', fakeAsync(() => {
     fixture.detectChanges();
@@ -108,6 +112,8 @@ describe('PostFeedComponent', () => {
     const appPosts: DebugElement[] = fixture.debugElement.queryAll(By.css('app-post'));
     expect(appPosts.length).toBe(3);
     expect(appPosts[2].componentInstance.post).toEqual(testPost);
+
+    fixture.destroy(); // to remove it's update timer from the queue
   }));
 
   it('should have a bound forumId', () => {
@@ -154,6 +160,53 @@ describe('PostFeedComponent', () => {
     expect(appPosts.length).toBe(0);
     noPostNotificationDe = fixture.debugElement.query(By.css('.noPostNotification'));
     expect(noPostNotificationDe).toBeFalsy();
+
+    fixture.destroy(); // to remove it's update timer from the queue
+  }));
+
+  it('should update the posts every 5 seconds', fakeAsync(() => {
+    fixture.detectChanges();  // ngOnInit
+    tick();                   // get forums from service
+    fixture.detectChanges();  // update the view
+
+    const newPosts: Post[] = [
+      {
+        id: 9,
+        forumId: 5,
+        title: 'new title',
+        body: 'new body'
+      }
+    ];
+    postServiceStub.getPosts = (forumId: number) => (forumId ? asyncData<Post[]>([...newPosts]) : null);
+    tick(5000);
+    fixture.detectChanges();
+    let postComponentDes = fixture.debugElement.queryAll(By.css('app-post'));
+    expect(postComponentDes.length).toBe(newPosts.length);
+    expect(postComponentDes.map(value => value.componentInstance.post)).toEqual(newPosts);
+
+    const moreNewPosts: Post[] = [
+      {
+        id: 12,
+        forumId: 4,
+        title: 'another new post title',
+        body: 'another new body with more info etc'
+      }
+    ];
+    postServiceStub.getPosts = (forumId: number) => (forumId ? asyncData<Post[]>([...moreNewPosts]) : null);
+    // after 4999 millis the old data should still be in the view
+    tick(4999);
+    fixture.detectChanges();
+    postComponentDes = fixture.debugElement.queryAll(By.css('app-post'));
+    expect(postComponentDes.length).toBe(newPosts.length);
+    expect(postComponentDes.map(value => value.componentInstance.post)).toEqual(newPosts);
+    // then after 5000 the new data should be in the view
+    tick(1);
+    fixture.detectChanges();
+    postComponentDes = fixture.debugElement.queryAll(By.css('app-post'));
+    expect(postComponentDes.length).toBe(moreNewPosts.length);
+    expect(postComponentDes.map(value => value.componentInstance.post)).toEqual(moreNewPosts);
+
+    fixture.destroy(); // to remove it's update timer from the queue
   }));
 });
 
