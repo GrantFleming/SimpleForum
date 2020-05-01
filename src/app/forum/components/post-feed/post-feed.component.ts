@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {AfterViewChecked, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {PostService} from '../../services/post.service';
 import {Post} from '../../models/post';
 
@@ -7,11 +7,12 @@ import {Post} from '../../models/post';
   templateUrl: './post-feed.component.html',
   styleUrls: ['./post-feed.component.scss']
 })
-export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges {
+export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges, OnDestroy {
 
   @Input() forumId: number;
   posts: Post[];
   newPost = false;
+  private nextUpdate;
 
   constructor(private postService: PostService) {
   }
@@ -20,8 +21,12 @@ export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // TODO - this doesn't need to be checked so often can be checked elsewhere
+    /*
+      If the @Input()'s have changed, validate them, cancel
+      the next scheduled update and instead do one immediately
+     */
     this._checkAttributes();
+    clearTimeout(this.nextUpdate);
     this._getPosts();
   }
 
@@ -36,10 +41,9 @@ export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges {
     }
   }
 
-  private _getPosts() {
-    this.postService.getPosts(this.forumId).subscribe(posts => {
-      this.posts = posts;
-    });
+  ngOnDestroy(): void {
+    // to avoid memory leaks
+    clearTimeout(this.nextUpdate);
   }
 
   /**
@@ -52,6 +56,19 @@ export class PostFeedComponent implements OnInit, AfterViewChecked, OnChanges {
       scrollBy(0, lastPost.scrollHeight + lastPost.children.item(0).clientHeight);
       this.newPost = false;
     }
+  }
+
+  private _getPosts() {
+    // keep the posts up to date, every time returned observable completes,
+    // schedule the next call
+    this.postService.getPosts(this.forumId).subscribe({
+      next: posts => {
+        this.posts = posts;
+      },
+      complete: () => {
+        this.nextUpdate = setTimeout(() => this._getPosts(), 5000);
+      }
+    });
   }
 
 }
