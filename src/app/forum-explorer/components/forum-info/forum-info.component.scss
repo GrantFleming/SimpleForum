@@ -14,11 +14,13 @@
 
   button {
     font-size: 1.2rem;
-    width: 6rem;
+    width: 7rem;
     margin: 0 0.5rem;
+    white-space: normal;
 
     @media (max-width: 599.9px) {
       transform: translate(-35px, -10px);
+      width: 8em;
     }
 
     &:hover {

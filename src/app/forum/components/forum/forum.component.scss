@@ -1,5 +1,18 @@
+* {
+  max-width: 1024px;
+  display: block;
+  margin: auto;
+}
+
 .control-bar {
-  padding: 2em;
+  padding: 0 2em;
+  height: 2em;
+
+  button {
+    // for spacing between buttons in the control bar
+    margin: 0 0 0 1em;
+    float: right;
+  }
 }
 
 .container {
