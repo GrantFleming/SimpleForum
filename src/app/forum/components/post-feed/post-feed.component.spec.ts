@@ -146,15 +146,14 @@ describe('PostFeedComponent', () => {
     // I don't care to unit test the exact nature of the error message. Just the one is shown and is non-empty
     expect(noPostNotificationDe.nativeElement.textContent).toBeTruthy();
 
-    // should also display the error message for null
+    // should NOT display the error message for null
+    // as this just means the server hasn't responded yet
     component.posts = null;
     fixture.detectChanges();
     appPosts = fixture.debugElement.queryAll(By.css('app-post'));
     expect(appPosts.length).toBe(0);
     noPostNotificationDe = fixture.debugElement.query(By.css('.noPostNotification'));
-    expect(noPostNotificationDe).toBeTruthy();
-    // I don't care to unit test the exact nature of the error message. Just the one is shown and is non-empty
-    expect(noPostNotificationDe.nativeElement.textContent).toBeTruthy();
+    expect(noPostNotificationDe).toBeFalsy();
   }));
 });
 
