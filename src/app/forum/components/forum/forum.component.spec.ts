@@ -2,13 +2,13 @@ import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/t
 
 import {ForumComponent} from './forum.component';
 import {Component, Directive, HostListener, Input} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {Observable, of} from 'rxjs';
 import {By} from '@angular/platform-browser';
 import {Post} from '../../models/post';
 import {ForumService} from '../../services/forum.service';
 import {Forum} from '../../models/Forum';
-import {asyncData} from '../../../test_utils/test_async_utils';
+import {asyncData, asyncError} from '../../../test_utils/test_async_utils';
 
 describe('ForumComponent', () => {
   let fixture: ComponentFixture<ForumComponent>;
@@ -28,6 +28,7 @@ describe('ForumComponent', () => {
     }
   };
 
+  const routerSpy = jasmine.createSpyObj(Router, ['navigateByUrl']);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -40,7 +41,8 @@ describe('ForumComponent', () => {
       providers: [
         {provide: ActivatedRoute, useValue: routeSpy},
         {provide: ForumService, useValue: mockForumService},
-        {provide: RouterLink, useValue: RouterLinkDirectiveStub}
+        {provide: RouterLink, useValue: RouterLinkDirectiveStub},
+        {provide: Router, useValue: routerSpy}
       ]
     })
       .compileComponents();
@@ -126,6 +128,15 @@ describe('ForumComponent', () => {
     forumExplorerButtonDe.nativeElement.click();
     const routerLink = forumExplorerButtonDe.injector.get(RouterLinkDirectiveStub);
     expect(routerLink.navigatedTo).toEqual(['/forums']);
+  }));
+
+  it('should navigate to "/page-not-found" if the ForumService errors', fakeAsync(() => {
+    // before ngOnInit
+    // make forum service error for any input
+    mockForumService.getForum = (id: number) => asyncError('any');
+    fixture.detectChanges(); // ngOnInit
+    tick(); // allow the error to be returned asynchronously
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/page-not-found', jasmine.anything());
   }));
 });
 
