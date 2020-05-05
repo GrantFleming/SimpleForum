@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Forum} from '../../models/Forum';
 import {concatMap} from 'rxjs/operators';
 import {ForumService} from '../../services/forum.service';
@@ -15,7 +15,8 @@ export class ForumComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private forumService: ForumService) {
+    private forumService: ForumService,
+    private router: Router) {
   }
 
   ngOnInit(): void {
@@ -24,7 +25,8 @@ export class ForumComponent implements OnInit {
         params => this.forumService.getForum(+params.get('id'))
       )
     ).subscribe(
-      forum => this.forum = forum
+      forum => this.forum = forum,
+      () => this.router.navigateByUrl('/page-not-found', {replaceUrl: true})
     );
   }
 }
