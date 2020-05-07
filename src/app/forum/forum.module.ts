@@ -9,7 +9,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
-import {RouterModule} from '@angular/router';
+import {ForumRoutingModule} from './forum-routing.module';
 
 @NgModule({
   declarations: [
@@ -25,7 +25,7 @@ import {RouterModule} from '@angular/router';
     MatGridListModule,
     MatInputModule,
     MatButtonModule,
-    RouterModule
+    ForumRoutingModule
   ]
 })
 export class ForumModule {
