@@ -18,7 +18,7 @@ import {ForumExplorerModule} from './forum-explorer/forum-explorer.module';
   imports: [
     BrowserModule,
     HttpClientModule,
-    environment.production ?
+    environment.liveBackend ?
       [] : HttpClientInMemoryWebApiModule.forRoot(
       InMemoryDataService, {dataEncapsulation: false}),
     ForumModule,
