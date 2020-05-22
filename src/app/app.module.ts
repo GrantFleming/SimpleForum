@@ -16,7 +16,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
   imports: [
     BrowserModule,
     HttpClientModule,
-    environment.production ?
+    environment.liveBackend ?
       [] : HttpClientInMemoryWebApiModule.forRoot(
       InMemoryDataService, {dataEncapsulation: false}),
     BrowserAnimationsModule,
