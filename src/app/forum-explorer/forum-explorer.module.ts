@@ -4,7 +4,7 @@ import {ForumExplorerComponent} from './components/forum-explorer/forum-explorer
 import {ForumListComponent} from './components/forum-list/forum-list.component';
 import {ForumInfoComponent} from './components/forum-info/forum-info.component';
 import {MatCardModule} from '@angular/material/card';
-import {RouterModule} from '@angular/router';
+import {ForumExplorerRoutingModule} from './forum-explorer-routing.module';
 import {MatButtonModule} from '@angular/material/button';
 import {AddForumComponent} from './components/add-forum/add-forum.component';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -24,7 +24,7 @@ import {MatInputModule} from '@angular/material/input';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    RouterModule
+    ForumExplorerRoutingModule
   ]
 })
 export class ForumExplorerModule {
