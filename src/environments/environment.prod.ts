@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  backendHost: 'https://simpleforumbackend-boisterous-dog-yz.cfapps.io'
+  liveBackend: true,
+  backendHost: 'https://simpleforumbackend-fluent-pangolin-hd.cfapps.io/'
 };
