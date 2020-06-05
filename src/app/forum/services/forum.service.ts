@@ -32,6 +32,7 @@ export class ForumService {
    * replace them
    */
   private cache: Map<number, [Forum, Date]> = new Map();
+  private baseURL = `${environment.backendHost}${environment.forumsEndpoint}`;
 
   constructor(private http: HttpClient) {
   }
@@ -71,8 +72,7 @@ export class ForumService {
       headers = headers.set('If-Modified-Since', oldestDate.toUTCString());
     }
 
-    const serverResponse$ = this.http.get(
-      `${environment.backendHost}/forums`,
+    const serverResponse$ = this.http.get(this.baseURL,
       {headers, observe: 'response'});
 
     // If we are supplied newer forums, update the cache then return them
@@ -131,7 +131,7 @@ export class ForumService {
     }
 
     const serverResponse$ = this.http.get(
-      `${environment.backendHost}/forums/${id}`,
+      `${this.baseURL}/${id}`,
       {headers, observe: 'response'});
 
     // If we are supplied a newer forum, update the cache then return it
@@ -172,7 +172,7 @@ export class ForumService {
     }
 
     const postRequest$ = this.http.post<Forum>(
-      `${environment.backendHost}/forums`,
+      this.baseURL,
       newForum,
       cudOptions);
 

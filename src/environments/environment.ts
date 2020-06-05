@@ -5,7 +5,9 @@
 export const environment = {
   production: false,
   liveBackend: false,
-  backendHost: 'api'
+  backendHost: '',
+  postsEndpoint: '/api/posts',
+  forumsEndpoint: '/api/forums'
 };
 
 /*

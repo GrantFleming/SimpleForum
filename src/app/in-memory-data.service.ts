@@ -40,6 +40,7 @@ export class InMemoryDataService implements InMemoryDbService {
         body: 'I know because a politician once bit me and now I\'m dead.'
       }
     ];
+
     return {forums, posts};
   }
 }

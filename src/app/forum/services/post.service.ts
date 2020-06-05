@@ -15,8 +15,7 @@ const cudOptions = {
 })
 export class PostService {
 
-  private baseURL: string = environment.backendHost;
-  private postsEndpoint = '/posts';
+  private baseURL = `${environment.backendHost}${environment.postsEndpoint}`;
   private cache: Map<number, [Post, Date]> = new Map();
 
   constructor(private http: HttpClient) {
@@ -58,7 +57,7 @@ export class PostService {
     }
 
     const serverResponse$ = this.http.get(
-      `${this.baseURL}${this.postsEndpoint}?forumId=${forumId}`,
+      `${this.baseURL}?forumId=${forumId}`,
       {headers, observe: 'response'}
     );
 
@@ -96,7 +95,7 @@ export class PostService {
     }
 
     const postRequest$ = this.http.post<Post>(
-      `${environment.backendHost}/posts`,
+      this.baseURL,
       newPost,
       cudOptions);
 

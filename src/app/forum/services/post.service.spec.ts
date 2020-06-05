@@ -58,7 +58,7 @@ describe('PostService \'getPosts\' method', () => {
     service.getPosts(exampleForumId).subscribe();
     tick(); // fills the cache as the server response above is emitted
     expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/posts?forumId=${exampleForumId}`,
+      `${environment.backendHost}${environment.postsEndpoint}?forumId=${exampleForumId}`,
       {headers: jasmine.anything(), observe: 'response'});
     mockHttpClient.get.calls.reset();
 
@@ -67,7 +67,7 @@ describe('PostService \'getPosts\' method', () => {
     service.getPosts(exampleForumId);
     const expectedHeaders = new HttpHeaders().set('If-Modified-Since', creationDate.toUTCString());
     expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/posts?forumId=${exampleForumId}`,
+      `${environment.backendHost}${environment.postsEndpoint}?forumId=${exampleForumId}`,
       {headers: expectedHeaders, observe: 'response'});
   }));
 
@@ -101,7 +101,8 @@ describe('PostService \'getPosts\' method', () => {
       of({}) // response doesn't matter
     );
     service.getPosts(666).subscribe();
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/posts?forumId=666`, jasmine.anything());
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.postsEndpoint}?forumId=666`, jasmine.anything());
   });
 
   it('should return posts from server on first call where cache is empty', fakeAsync(() => {
@@ -220,7 +221,8 @@ describe('PostService \'addPost\' method', () => {
     // to the correct endpoint with the correct payload
     mockHttpClient.post.and.returnValue(asyncData('any'));
     service.addPost(examplePost);
-    expect(mockHttpClient.post).toHaveBeenCalledWith(`${environment.backendHost}/posts`, examplePost, jasmine.anything());
+    expect(mockHttpClient.post).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.postsEndpoint}`, examplePost, jasmine.anything());
   });
 
   it('should return null on error', fakeAsync(() => {

@@ -53,14 +53,16 @@ describe('ForumService \'getForums\' method', () => {
     mockHttpClient.get.and.returnValue(asyncData(successfulResponse));
     service.getForums().subscribe();
     tick(); // fills the cache as the server response above is emitted
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/forums`, {headers: new HttpHeaders(), observe: 'response'});
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}`, {headers: new HttpHeaders(), observe: 'response'});
     mockHttpClient.get.calls.reset();
 
     // if there is a cache, 'if-modified-since' header should be the oldest date in the cache
     mockHttpClient.get.and.returnValue(EMPTY);
     service.getForums();
     const expectedHeaders = new HttpHeaders().set('If-Modified-Since', modifiedDate.toUTCString());
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/forums`, {headers: expectedHeaders, observe: 'response'});
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}`, {headers: expectedHeaders, observe: 'response'});
   }));
 
   it('should return forums from server on first call where cache is empty', fakeAsync(() => {
@@ -183,7 +185,7 @@ describe('ForumService \'getForum(forumId)\' method', () => {
     service.getForum(1).subscribe();
     tick(); // fills the cache as the server response above is emitted
     expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/forums/1`,
+      `${environment.backendHost}${environment.forumsEndpoint}/1`,
       {headers: new HttpHeaders(), observe: 'response'});
     mockHttpClient.get.calls.reset();
 
@@ -191,7 +193,8 @@ describe('ForumService \'getForum(forumId)\' method', () => {
     mockHttpClient.get.and.returnValue(EMPTY);
     service.getForum(1);
     const expectedHeaders = new HttpHeaders().set('If-Modified-Since', modifiedDate.toUTCString());
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/forums/1`, {headers: expectedHeaders, observe: 'response'});
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}/1`, {headers: expectedHeaders, observe: 'response'});
   }));
 
   it('should return the correct forum from server on first call where cache is empty', fakeAsync(() => {
@@ -310,7 +313,8 @@ describe('ForumService \'addForum\' method ', () => {
     // to the correct endpoint with the correct payload
     mockHttpClient.post.and.returnValue(asyncData('any'));
     service.addForum(exampleForum);
-    expect(mockHttpClient.post).toHaveBeenCalledWith(`${environment.backendHost}/forums`, exampleForum, jasmine.anything());
+    expect(mockHttpClient.post).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}`, exampleForum, jasmine.anything());
   });
 
   it('should throw an error if the supplied forum already has an id', () => {
