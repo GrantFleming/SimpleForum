@@ -7,7 +7,9 @@ export const environment = {
   liveBackend: false,
   backendHost: '',
   postsEndpoint: '/api/posts',
-  forumsEndpoint: '/api/forums'
+  forumsEndpoint: '/api/forums',
+  userRegistrationEndpoint: '/user/register',
+  tokenRetrievalEndpoint: '/auth/token'
 };
 
 /*

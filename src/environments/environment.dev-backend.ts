@@ -3,5 +3,7 @@ export const environment = {
   liveBackend: true,
   backendHost: 'https://simpleforumbackend-boisterous-dog-yz.cfapps.io',
   postsEndpoint: '/api/posts',
-  forumsEndpoint: '/api/forums'
+  forumsEndpoint: '/api/forums',
+  userRegistrationEndpoint: '/user/register',
+  tokenRetrievalEndpoint: '/auth/token'
 };
