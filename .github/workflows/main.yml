@@ -15,7 +15,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-
+        
+    - name: Test
+      run: |
+        npm install
+        npm run lint
+        npm run test:ci
+        
     - name: Deploy
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
