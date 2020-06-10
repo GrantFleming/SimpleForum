@@ -1,6 +1,6 @@
 import {PostService} from './post.service';
 import {Post} from '../models/post';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {fakeAsync, tick} from '@angular/core/testing';
 import {asyncData, asyncError, genericError} from '../../test_utils/test_async_utils';
 import {environment} from '../../../environments/environment';
@@ -301,5 +301,26 @@ describe('PostService \'addPost\' method', () => {
     );
     tick();
     expect(emissions).toBe(1);
+  }));
+
+  it('should translate an error from the httpClient if it was a 403', fakeAsync(() => {
+    mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 403})));
+    service.addPost({body: '', forumId: 0, id: undefined, title: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err.message).toContain('Post creation unsuccessful'),
+      () => fail('Observable should not complete here')
+    );
+    tick();
+  }));
+
+  it('should pass through an error that is not a 403 unaltered', fakeAsync(() => {
+    const originalError = new HttpErrorResponse({status: 500});
+    mockHttpClient.post.and.returnValue(asyncError(originalError));
+    service.addPost({body: '', forumId: 0, id: undefined, title: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err).toEqual(originalError),
+      () => fail('Observable should not complete here')
+    );
+    tick();
   }));
 });

@@ -4,7 +4,7 @@ import {asyncData, asyncError} from '../../test_utils/test_async_utils';
 import {HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
 import {EMPTY} from 'rxjs';
-import {AuthenticationError, AuthenticationService} from './authentication.service';
+import {AuthenticationFailedError, AuthenticationService} from './authentication.service';
 import {createUnsecuredToken} from 'jsontokens/lib';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import anything = jasmine.anything;
@@ -39,23 +39,23 @@ describe('AuthenticationService\'checkEmailAvailability\' method', () => {
     service = new AuthenticationService(mockHttpClient);
   });
 
-  it('should return an Observable that emits true if the server responds \'true\'', fakeAsync(() => {
-    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({body: 'true', status: 200})));
-    const result$ = service.checkEmailAvailability('some email');
+  it('should return an Observable that emits true if the server responds true', fakeAsync(() => {
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({body: true, status: 200})));
+    const result$ = service.isEmailAlreadyTaken('some email');
     result$.subscribe(value => expect(value).toBeTrue());
     tick();
   }));
 
   it('should return an Observable that emits false if the server responds \'false\'', fakeAsync(() => {
-    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({body: 'false', status: 200})));
-    const result$ = service.checkEmailAvailability('some email');
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({body: false, status: 200})));
+    const result$ = service.isEmailAlreadyTaken('some email');
     result$.subscribe(value => expect(value).toBeFalse());
     tick();
   }));
 
   it('should return an Observable that throws an error if the server responds non-200', fakeAsync(() => {
     mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({status: 400})));
-    const result$ = service.checkEmailAvailability('some email');
+    const result$ = service.isEmailAlreadyTaken('some email');
     result$.subscribe(
       () => fail('Observable should not emit on server error.'),
       error => expect(error).toBeTruthy()
@@ -65,7 +65,7 @@ describe('AuthenticationService\'checkEmailAvailability\' method', () => {
 
   it('should return an Observable that throws an error if the server responds with body that is not true or false', fakeAsync(() => {
     mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({status: 200, body: 'banana'})));
-    const result$ = service.checkEmailAvailability('some email');
+    const result$ = service.isEmailAlreadyTaken('some email');
     let errorThrown = false;
     result$.subscribe(
       () => fail('Observable should not emit on invalid body.'),
@@ -82,11 +82,11 @@ describe('AuthenticationService\'checkEmailAvailability\' method', () => {
     mockHttpClient.get.and.returnValue(EMPTY);
 
     const email = 'some email';
-    const result$ = service.checkEmailAvailability(email);
+    const result$ = service.isEmailAlreadyTaken(email);
     result$.subscribe();
     expect(mockHttpClient.get)
       .toHaveBeenCalledWith(
-        `${environment.backendHost}${environment.userRegistrationEndpoint}?email=${email}`,
+        `${environment.backendHost}${environment.emailValidationEndpoint}?email=${email}`,
         anything());
   });
 });
@@ -157,9 +157,8 @@ describe('AuthenticationService login/logout system', () => {
     mockHttpClient.get.and.returnValue(asyncError(new HttpErrorResponse({status: 401})));
     service.login('invalid@user.com', 'incorrectPassword').subscribe(
       () => fail('This Observable should never emit.'),
-      () => { /* Error will be thrown on 401 response */
-      },
-      () => expect(service.isLoggedIn()).toBeFalse()
+      () => expect(service.isLoggedIn()).toBeFalse(),
+      () => fail('This Observable should not complete.')
     );
     tick();
   }));
@@ -187,7 +186,9 @@ describe('AuthenticationService login/logout system', () => {
     mockHttpClient.get.and.returnValue(asyncError(new HttpErrorResponse({status: 401})));
     service.login('invalid@user.com', 'incorrectPassword').subscribe(
       () => fail('This Observable should never emit.'),
-      e => expect(e).toBeInstanceOf(AuthenticationError),
+      e => {
+        expect(e).toBeInstanceOf(AuthenticationFailedError);
+      },
       () => fail('This Observable should not complete here.')
     );
     tick();
@@ -197,7 +198,7 @@ describe('AuthenticationService login/logout system', () => {
     mockHttpClient.get.and.returnValue(asyncError(new HttpErrorResponse({status: 500})));
     service.login('some@user.com', 'somePassword').subscribe(
       () => fail('This Observable should never emit.'),
-      e => expect(e).toBeInstanceOf(AuthenticationError),
+      e => expect(e).toBeInstanceOf(Error),
       () => fail('This Observable should not complete here.')
     );
     tick();
@@ -267,7 +268,7 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
 
     service.registerNewUser('someemail', 'somepassword').subscribe(
       () => fail('Observable should never emit.'),
-      err => expect(err).toBeInstanceOf(AuthenticationError),
+      err => expect(err).toBeInstanceOf(AuthenticationFailedError),
       () => fail('Observable should not complete here')
     );
 
@@ -279,7 +280,7 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
 
     service.registerNewUser('someemail', 'somepassword').subscribe(
       () => fail('Observable should never emit.'),
-      err => expect(err).toBeInstanceOf(AuthenticationError),
+      err => expect(err).toBeInstanceOf(AuthenticationFailedError),
       () => fail('Observable should not complete here')
     );
 

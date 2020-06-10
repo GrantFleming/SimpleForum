@@ -1,0 +1,37 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>Register</mat-card-title>
+    <mat-card-subtitle>
+      <p>You can browse forums without an account, however to create new forums
+        or post in forums you will need one.</p>
+      <p>Don't have one? No problem!</p>
+      <p>Register below!</p>
+    </mat-card-subtitle>
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit(registerForm.value);" [formGroup]="registerForm">
+
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input formControlName="email" id="email" matInput type="email">
+          <mat-error>{{emailErrors}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input formControlName="password" id="password" matInput type="password"/>
+          <mat-error>{{passwordErrors}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Confirm Password</mat-label>
+          <input formControlName="confirmPassword" id="confirmPassword" matInput type="password"/>
+          <mat-error>{{confirmPasswordErrors}}</mat-error>
+        </mat-form-field>
+
+        <button [disabled]="registerForm.invalid" class="button" color="primary" mat-raised-button type="submit">
+          Register
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

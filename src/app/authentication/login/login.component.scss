@@ -1,0 +1,30 @@
+div.container {
+  // center the container on the screen
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  padding: 2em;
+  box-sizing: border-box;
+  max-width: 400px;
+  width: 100%;
+}
+
+mat-card-title {
+  margin-bottom: 1em;
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+form {
+  overflow: hidden;
+}
+
+button {
+  float: right;
+  margin-top: 1em;
+}

@@ -1,0 +1,24 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit(loginForm.value);" [formGroup]="loginForm">
+
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input formControlName="email" id="email" matInput type="email">
+          <mat-error>{{emailErrors}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input formControlName="password" id="password" matInput type="password"/>
+          <mat-error>{{passwordErrors}}</mat-error>
+        </mat-form-field>
+
+        <button [disabled]="loginForm.invalid" class="button" color="primary" mat-raised-button type="submit">Login
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

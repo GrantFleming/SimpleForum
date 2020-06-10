@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {catchError, ignoreElements, map, tap} from 'rxjs/operators';
@@ -10,7 +10,7 @@ import {JwtHelperService} from '@auth0/angular-jwt';
  * Thrown on failure to login, either due to incorrect credentials
  * or to server error.
  */
-export class AuthenticationError extends Error {
+export class AuthenticationFailedError extends Error {
   constructor(message: string) {
     super(message);
   }
@@ -28,7 +28,9 @@ export class AuthenticationError extends Error {
 export class AuthenticationService implements HttpInterceptor {
 
   private token: string;
+  private loginURL = `${environment.backendHost}${environment.tokenRetrievalEndpoint}`;
   private registrationURL = `${environment.backendHost}${environment.userRegistrationEndpoint}`;
+  private emailValidationURL = `${environment.backendHost}${environment.emailValidationEndpoint}`;
   private jwtHelperService = new JwtHelperService();
 
   constructor(private httpClient: HttpClient) {
@@ -53,14 +55,13 @@ export class AuthenticationService implements HttpInterceptor {
    * @param password of the new user
    */
   registerNewUser(email: string, password: string): Observable<never> {
-    const url = `${environment.backendHost}${environment.userRegistrationEndpoint}`;
     const headers = new HttpHeaders().append('Content-Type', 'application/x-www-form-urlencoded');
     const body = `email=${email}&password=${password}`;
 
-    const request$ = this.httpClient.post(url, body, {headers});
+    const request$ = this.httpClient.post(this.registrationURL, body, {headers});
     return request$.pipe(
       catchError(err => {
-        throw new AuthenticationError(err.message);
+        throw new AuthenticationFailedError(err.message);
       }),
       ignoreElements()
     );
@@ -69,25 +70,23 @@ export class AuthenticationService implements HttpInterceptor {
   /**
    * Checks whither a given email address has already been taken by a user or not.
    *
+   * Returned observable emits true if the email is ALREADY TAKEN
+   *
    * @param email to check for availability
    */
-  checkEmailAvailability(email: string): Observable<boolean> {
-    const url = `${this.registrationURL}?email=${email}`;
+  isEmailAlreadyTaken(email: string): Observable<boolean> {
+    const url = `${this.emailValidationURL}?email=${email}`;
     return this.httpClient.get(url, {observe: 'response'})
       .pipe(
         // throw error if response status is not 200 otherwise get and trim the body
         map(response => {
           if (response.status !== 200) {
             throw new Error('Non-200 status from server.');
+          } else if (typeof response.body !== 'boolean') {
+            throw new Error('Could not understand server response, ' +
+              'expected a boolean and instead got a ' + typeof response.body);
           }
-          return (response.body as string).trim();
-        }),
-        // error if response body is not 'true' or 'false' otherwise parse it to a boolean
-        map(body => {
-          if (body !== 'true' && body !== 'false') {
-            throw new Error('Invalid response from server.');
-          }
-          return body === 'true';
+          return response.body;
         })
       );
   }
@@ -104,12 +103,10 @@ export class AuthenticationService implements HttpInterceptor {
    * @param password of the user that wishes to log in
    */
   login(email: string, password: string): Observable<never> {
-    const url = `${environment.backendHost}${environment.tokenRetrievalEndpoint}`;
-
     const basicAuth = btoa(`${email}:${password}`);
     const headers = new HttpHeaders().append('Authorization', `Basic ${basicAuth}`);
 
-    const request$ = this.httpClient.get(url, {headers, observe: 'body', responseType: 'text'});
+    const request$ = this.httpClient.get(this.loginURL, {headers, observe: 'body', responseType: 'text'});
 
     // We make sure to not leak details of the token to the outside world by ignoring
     // emissions. An observable is still returned as the user should be able to provide
@@ -118,7 +115,10 @@ export class AuthenticationService implements HttpInterceptor {
     return request$.pipe(
       // hide dirty HTTP request details, there was an error authenticating.
       catchError(err => {
-        throw new AuthenticationError(err.message);
+        if (err instanceof HttpErrorResponse && (err as HttpErrorResponse).status === 401) {
+          throw new AuthenticationFailedError(err.message);
+        }
+        throw new Error('Error occurred during authentication.');
       }),
       tap(x => this.token = x),
       ignoreElements()

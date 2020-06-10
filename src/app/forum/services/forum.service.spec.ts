@@ -1,9 +1,9 @@
 import {fakeAsync, tick} from '@angular/core/testing';
 
 import {ForumService} from './forum.service';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
-import {asyncData} from '../../test_utils/test_async_utils';
+import {asyncData, asyncError} from '../../test_utils/test_async_utils';
 import {defer, EMPTY} from 'rxjs';
 import {Forum} from '../models/Forum';
 
@@ -148,7 +148,6 @@ describe('ForumService \'getForums\' method', () => {
   }));
 });
 
-
 describe('ForumService \'getForum(forumId)\' method', () => {
   let service: ForumService;
   let mockHttpClient;
@@ -287,7 +286,6 @@ describe('ForumService \'getForum(forumId)\' method', () => {
   }));
 });
 
-
 describe('ForumService \'addForum\' method ', () => {
 
   let service: ForumService;
@@ -382,5 +380,26 @@ describe('ForumService \'addForum\' method ', () => {
       () => fail('should not error here')
     );
     expect(emissions).toBe(1);
+  }));
+
+  it('should translate an error from the httpClient if it was a 403', fakeAsync(() => {
+    mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 403})));
+    service.addForum({description: '', id: undefined, name: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err.message).toContain('Forum creation unsuccessful'),
+      () => fail('Observable should not complete here')
+    );
+    tick();
+  }));
+
+  it('should pass through an error that is not a 403 unaltered', fakeAsync(() => {
+    const originalError = new HttpErrorResponse({status: 500});
+    mockHttpClient.post.and.returnValue(asyncError(originalError));
+    service.addForum({description: '', id: undefined, name: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err).toEqual(originalError),
+      () => fail('Observable should not complete here')
+    );
+    tick();
   }));
 });
