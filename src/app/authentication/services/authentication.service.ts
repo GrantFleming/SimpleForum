@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {catchError, ignoreElements, map, tap} from 'rxjs/operators';
@@ -7,12 +7,25 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 
 
 /**
+ * Thrown on failure to login, either due to incorrect credentials
+ * or to server error.
+ */
+export class AuthenticationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+/**
  * Manages user state and log-in logic.
+ *
+ * AuthenticationService is also an HttpInterceptor that will add appropriate authorization
+ * headers to outgoing requests if a user is logged in.
  */
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class AuthenticationService implements HttpInterceptor {
 
   private token: string;
   private registrationURL = `${environment.backendHost}${environment.userRegistrationEndpoint}`;
@@ -119,14 +132,19 @@ export class UserService {
     this.token = undefined;
   }
 
-}
-
-/**
- * Thrown on failure to login, either due to incorrect credentials
- * or to server error.
- */
-export class AuthenticationError extends Error {
-  constructor(message: string) {
-    super(message);
+  /**
+   * If a user is logged in, this methods adds authentication to all http requests.
+   *
+   * @param req outgoing request which may need authentication
+   * @param next the next handler in the chain
+   */
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (this.isLoggedIn()) {
+      const headers = req.headers.append('Authorization', `Bearer ${this.token}`);
+      const authenticatedRequest = req.clone({headers});
+      return next.handle(authenticatedRequest);
+    }
+    return next.handle(req);
   }
+
 }

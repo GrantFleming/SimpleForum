@@ -1,15 +1,16 @@
 import {fakeAsync, TestBed, tick} from '@angular/core/testing';
 
 import {asyncData, asyncError} from '../../test_utils/test_async_utils';
-import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
 import {EMPTY} from 'rxjs';
-import {AuthenticationError, UserService} from './user.service';
+import {AuthenticationError, AuthenticationService} from './authentication.service';
 import {createUnsecuredToken} from 'jsontokens/lib';
+import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import anything = jasmine.anything;
 
-describe('UserService', () => {
-  let service: UserService;
+describe('AuthenticationService', () => {
+  let service: AuthenticationService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -17,7 +18,7 @@ describe('UserService', () => {
         {provide: HttpClient, useValue: new HttpClientStub()}
       ]
     });
-    service = TestBed.inject(UserService);
+    service = TestBed.inject(AuthenticationService);
   });
 
   it('should be created', () => {
@@ -28,14 +29,14 @@ describe('UserService', () => {
   }
 });
 
-describe('UserService\'checkEmailAvailability\' method', () => {
+describe('AuthenticationService\'checkEmailAvailability\' method', () => {
 
   let mockHttpClient;
-  let service: UserService;
+  let service: AuthenticationService;
 
   beforeEach(() => {
     mockHttpClient = jasmine.createSpyObj(['get']);
-    service = new UserService(mockHttpClient);
+    service = new AuthenticationService(mockHttpClient);
   });
 
   it('should return an Observable that emits true if the server responds \'true\'', fakeAsync(() => {
@@ -90,14 +91,14 @@ describe('UserService\'checkEmailAvailability\' method', () => {
   });
 });
 
-describe('UserService login/logout system', () => {
+describe('AuthenticationService login/logout system', () => {
 
   let mockHttpClient;
-  let service: UserService;
+  let service: AuthenticationService;
 
   beforeEach(() => {
     mockHttpClient = jasmine.createSpyObj(['get']);
-    service = new UserService(mockHttpClient);
+    service = new AuthenticationService(mockHttpClient);
   });
 
   it('should initially state that a user is not logged in', () => {
@@ -215,14 +216,14 @@ describe('UserService login/logout system', () => {
   });
 });
 
-describe('UserService \'registerNewUser\' method', () => {
+describe('AuthenticationService \'registerNewUser\' method', () => {
 
   let mockHttpClient;
-  let service: UserService;
+  let service: AuthenticationService;
 
   beforeEach(() => {
     mockHttpClient = jasmine.createSpyObj(['get', 'post']);
-    service = new UserService(mockHttpClient);
+    service = new AuthenticationService(mockHttpClient);
   });
 
   it('should formulate the correct http request', () => {
@@ -284,5 +285,73 @@ describe('UserService \'registerNewUser\' method', () => {
 
     tick();
   }));
+});
+
+describe('AuthenticationService as HttpInterceptor', () => {
+
+  let service: AuthenticationService;
+  let httpMock: HttpTestingController;
+  let httpClient: HttpClient;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        AuthenticationService,
+        {provide: HTTP_INTERCEPTORS, useExisting: AuthenticationService, multi: true}
+      ]
+    });
+
+    service = TestBed.inject(AuthenticationService);
+    httpMock = TestBed.inject(HttpTestingController);
+    httpClient = TestBed.inject(HttpClient);
+  });
+
+  it('should add an authorization header if the user is logged in', () => {
+    spyOn(service, 'isLoggedIn').and.returnValue(true);
+    httpClient.get('/some/url').subscribe(
+      value => expect(value).toBeTruthy()
+    );
+    const request = httpMock.expectOne('/some/url').request;
+    expect(request.headers.has('Authorization')).toBeTrue();
+  });
+
+  it('should not add an authorization header if no user is logged in', () => {
+    spyOn(service, 'isLoggedIn').and.returnValue(false);
+    httpClient.get('/some/url').subscribe(
+      value => expect(value).toBeTruthy()
+    );
+    const request = httpMock.expectOne('/some/url').request;
+    expect(request.headers.has('Authorization')).toBeFalse();
+  });
+
+  it('should add the correct token', () => {
+    const token = 'some token';
+    spyOn(service, 'isLoggedIn').and.returnValue(true);
+    (service as any).token = token;
+    httpClient.get('/some/url').subscribe(
+      value => expect(value).toBeTruthy()
+    );
+    const request = httpMock.expectOne('/some/url').request;
+    expect(request.headers.get('Authorization')).toContain(token);
+  });
+
+  it('should not alter the request apart from adding the authorization header', () => {
+    const url = '/some/url';
+    const body = 'some body data';
+
+    spyOn(service, 'isLoggedIn').and.returnValue(true);
+    httpClient.post(url, body, {headers: new HttpHeaders({something: 'anything'})}).subscribe(
+      value => expect(value).toBeTruthy()
+    );
+    const request = httpMock.expectOne(url).request;
+    expect(request.headers.get('something')).toEqual('anything');
+    expect(request.headers.keys().length).toBe(2); // our custom header plus authorization header, nothing else added
+
+    expect(request.method).toEqual('POST');
+    expect(request.url).toEqual(url);
+    expect(request.body).toEqual(body);
+  });
+
 });
 

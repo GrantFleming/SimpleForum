@@ -8,5 +8,5 @@ import {CommonModule} from '@angular/common';
     CommonModule
   ]
 })
-export class UserManagementModule {
+export class AuthenticationModule {
 }
