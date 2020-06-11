@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {concat, EMPTY, Observable, of} from 'rxjs';
 import {Forum} from '../models/Forum';
 import {environment} from '../../../environments/environment';
-import {defaultIfEmpty, filter, map, pluck, tap} from 'rxjs/operators';
+import {catchError, defaultIfEmpty, filter, map, pluck, tap} from 'rxjs/operators';
 
 const cudOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'}),
@@ -188,6 +188,14 @@ export class ForumService {
             return null;
           }
         }
-      ));
+      ),
+      catchError(err => {
+        // map error to a more helpful error message
+        if (err.status === 403) {
+          throw new Error('Forum creation unsuccessful: server failed to authorize the request');
+        }
+        throw err;
+      })
+    );
   }
 }

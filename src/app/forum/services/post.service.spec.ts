@@ -225,7 +225,7 @@ describe('PostService \'addPost\' method', () => {
       `${environment.backendHost}${environment.postsEndpoint}`, examplePost, jasmine.anything());
   });
 
-  it('should return null on error', fakeAsync(() => {
+  it('should throw error on httpClient error', fakeAsync(() => {
     // The lack of an id in the returned post is an indication that an error occurred
     // this includes a 404 via HttpErrorResponse
     mockHttpClient.post.and.returnValue(
@@ -235,8 +235,8 @@ describe('PostService \'addPost\' method', () => {
     post.title = 'a title';
     post.body = 'some body text';
     service.addPost(post).subscribe(
-      value => expect(value).toBeNull(),
-      () => fail('expected a Post object, not an error'));
+      () => fail('should not emit here'),
+      err => expect(err).toBeInstanceOf(Error));
   }));
 
   it('should not try to add a post that already has an id', () => {

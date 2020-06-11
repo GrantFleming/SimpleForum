@@ -111,6 +111,13 @@ export class PostService {
           return null;
         }
       }),
-      catchError(() => of(null)));
+      catchError(err => {
+        // map error to a more helpful error message
+        if (err.status === 403) {
+          throw new Error('Post creation unsuccessful: server failed to authorize the request');
+        }
+        throw err;
+      })
+    );
   }
 }
