@@ -9,17 +9,16 @@ import {Post} from '../../models/post';
 import {ForumService} from '../../services/forum.service';
 import {Forum} from '../../models/Forum';
 import {asyncData, asyncError} from '../../../test_utils/test_async_utils';
+import {AuthenticationService} from '../../../authentication/services/authentication.service';
 
 describe('ForumComponent', () => {
   let fixture: ComponentFixture<ForumComponent>;
   let component: ForumComponent;
   const testForumId = 3;
-
   // The ActivatedRoute spy
   const routeSpy = {
     paramMap: of({get: (ignored: any) => testForumId})
   };
-
   // the ForumService spy
   const testForum: Forum = {id: testForumId, name: 'a forum name', description: 'a forum description'};
   const mockForumService: Partial<ForumService> = {
@@ -27,8 +26,9 @@ describe('ForumComponent', () => {
       return asyncData(testForum);
     }
   };
-
   const routerSpy = jasmine.createSpyObj(Router, ['navigateByUrl']);
+  const mockAuthService = {isLoggedIn: () => false};
+
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -42,7 +42,8 @@ describe('ForumComponent', () => {
         {provide: ActivatedRoute, useValue: routeSpy},
         {provide: ForumService, useValue: mockForumService},
         {provide: RouterLink, useValue: RouterLinkDirectiveStub},
-        {provide: Router, useValue: routerSpy}
+        {provide: Router, useValue: routerSpy},
+        {provide: AuthenticationService, useValue: mockAuthService}
       ]
     })
       .compileComponents();
@@ -79,7 +80,9 @@ describe('ForumComponent', () => {
     expect(postFeedDe.componentInstance.forumId).toBe(testForumId);
   }));
 
-  it('should contain an add post component after the forum is loaded from ForumService', fakeAsync(() => {
+  it('should contain an add post component if the user is logged in after the forum is loaded from ForumService', fakeAsync(() => {
+    mockAuthService.isLoggedIn = () => true;
+
     fixture.detectChanges(); // ngOnInit
     tick(); // get the forum etc
     fixture.detectChanges(); // updated the view

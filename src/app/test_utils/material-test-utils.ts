@@ -50,11 +50,20 @@ class MatFormFieldStubComponent {
 class MatLabelStubComponent {
 }
 
+@Component({
+  // tslint:disable-next-line:component-selector
+  selector: 'mat-error',
+  template: '<ng-content></ng-content>'
+})
+class MatErrorStubComponent {
+}
+
 export const materialStubs = [
   MatCardStubComponent,
   MatCardContentStubComponent,
   MatCardTitleStubComponent,
   MatCardSubtitleStubComponent,
   MatFormFieldStubComponent,
-  MatLabelStubComponent
+  MatLabelStubComponent,
+  MatErrorStubComponent
 ];

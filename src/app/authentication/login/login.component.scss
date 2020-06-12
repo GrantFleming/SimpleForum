@@ -24,7 +24,15 @@ form {
   overflow: hidden;
 }
 
-button {
+button[type=submit] {
   float: right;
   margin-top: 1em;
+}
+
+span.left-pad {
+  padding-left: 1em;
+}
+
+mat-card-content.registration {
+  padding-top: 1em;
 }

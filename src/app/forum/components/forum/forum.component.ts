@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Forum} from '../../models/Forum';
 import {concatMap} from 'rxjs/operators';
 import {ForumService} from '../../services/forum.service';
+import {AuthenticationService} from '../../../authentication/services/authentication.service';
 
 @Component({
   selector: 'app-forum',
@@ -14,9 +15,10 @@ export class ForumComponent implements OnInit {
   forum: Forum;
 
   constructor(
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
     private forumService: ForumService,
-    private router: Router) {
+    private router: Router,
+    public authService: AuthenticationService) {
   }
 
   ngOnInit(): void {

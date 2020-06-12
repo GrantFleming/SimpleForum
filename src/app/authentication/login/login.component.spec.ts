@@ -3,7 +3,7 @@ import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/t
 import {LoginComponent} from './login.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {AuthenticationFailedError, AuthenticationService} from '../services/authentication.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DebugElement} from '@angular/core';
 import {By} from '@angular/platform-browser';
@@ -18,11 +18,13 @@ describe('LoginComponent', () => {
   let mockAuthService;
   let mockRouter: Router;
   let mockSnackBar: MatSnackBar;
+  let mockActivatedRoute;
 
   beforeEach(async(() => {
     mockAuthService = jasmine.createSpyObj(AuthenticationService, ['login']);
     mockRouter = jasmine.createSpyObj(Router, ['navigateByUrl']);
     mockSnackBar = jasmine.createSpyObj(MatSnackBar, ['open']);
+    mockActivatedRoute = {snapshot: {queryParamMap: {has: () => false}}};
 
     // make authentication attempts successful by default, can be overridden by specific tests if need be
     // (successful login attempts 'complete')
@@ -39,7 +41,8 @@ describe('LoginComponent', () => {
       providers: [
         {provide: AuthenticationService, useValue: mockAuthService},
         {provide: Router, useValue: mockRouter},
-        {provide: MatSnackBar, useValue: mockSnackBar}
+        {provide: MatSnackBar, useValue: mockSnackBar},
+        {provide: ActivatedRoute, useValue: mockActivatedRoute}
       ]
     })
       .compileComponents();

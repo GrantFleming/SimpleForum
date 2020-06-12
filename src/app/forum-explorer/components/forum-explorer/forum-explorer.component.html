@@ -3,5 +3,8 @@
   <hr>
   <app-forum-list #forumListComponent></app-forum-list>
   <div class="spacer"></div>
-  <app-add-forum (newForumEvent)="forumListComponent.addForum($event)"></app-add-forum>
+  <app-add-forum (newForumEvent)="forumListComponent.addForum($event)" *ngIf="authService.isLoggedIn()"></app-add-forum>
+  <button *ngIf="!authService.isLoggedIn()" [queryParams]="{return_to_previous: true}" color="primary" mat-raised-button
+          routerLink="/user/login">Log in to create your own forums!
+  </button>
 </div>

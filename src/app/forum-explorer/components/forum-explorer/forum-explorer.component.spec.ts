@@ -4,17 +4,28 @@ import {ForumExplorerComponent} from './forum-explorer.component';
 import {By} from '@angular/platform-browser';
 import {Component, EventEmitter, Output} from '@angular/core';
 import {Forum} from '../../../forum/models/Forum';
+import {ActivatedRoute} from '@angular/router';
+import {AuthenticationService} from '../../../authentication/services/authentication.service';
 
 describe('ForumExplorerComponent', () => {
   let component: ForumExplorerComponent;
   let fixture: ComponentFixture<ForumExplorerComponent>;
+  let mockActivatedRoute;
+  let mockAuthService;
 
   beforeEach(async(() => {
+    mockActivatedRoute = {snapshot: {queryParamMap: {has: () => false}}};
+    mockAuthService = {isLoggedIn: () => false};
+
     TestBed.configureTestingModule({
       declarations: [
         ForumExplorerComponent,
         MockForumListComponent,
         MockAddForumComponent
+      ],
+      providers: [
+        {provide: ActivatedRoute, useValue: mockActivatedRoute},
+        {provide: AuthenticationService, useValue: mockAuthService}
       ]
     })
       .compileComponents();
@@ -35,12 +46,18 @@ describe('ForumExplorerComponent', () => {
     expect(forumListDe).toBeTruthy();
   });
 
-  it('should display an AddForumComponent', () => {
+  it('should display an AddForumComponent if user is logged in', () => {
+    mockAuthService.isLoggedIn = () => true;
+    fixture.detectChanges();
+
     const addForumDe = fixture.debugElement.query(By.css('app-add-forum'));
     expect(addForumDe).toBeTruthy();
   });
 
-  it('should call addForum in the ForumList on a newForumEvent passing the new forum', () => {
+  it('should call addForum in the ForumList on a newForumEvent passing the new forum (if the user is logged in)', () => {
+    mockAuthService.isLoggedIn = () => true;
+    fixture.detectChanges();
+
     const eventEmitter = fixture.debugElement
       .query(By.css('app-add-forum'))
       .componentInstance

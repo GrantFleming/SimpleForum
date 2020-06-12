@@ -6,7 +6,11 @@
   <h2 class="forum-name">{{forum.name}}</h2>
   <p class="forum-desc">{{forum.description}}</p>
   <app-post-feed #feedComponent [forumId]=forum.id></app-post-feed>
-  <app-add-post (newPostEvent)="feedComponent.addPost($event)" [forumId]="forum.id"></app-add-post>
+  <app-add-post (newPostEvent)="feedComponent.addPost($event)" *ngIf="authService.isLoggedIn()"
+                [forumId]="forum.id"></app-add-post>
+  <button *ngIf="!authService.isLoggedIn()" [queryParams]="{return_to_previous: true}" color="primary" mat-raised-button
+          routerLink="/user/login">Log in to add your own posts!
+  </button>
 </div>
 <ng-template #loading>
   <div class="container loading-widget">

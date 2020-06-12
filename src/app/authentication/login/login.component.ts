@@ -1,7 +1,8 @@
 import {Component} from '@angular/core';
+import {Location} from '@angular/common';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthenticationFailedError, AuthenticationService} from '../services/authentication.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 
 /**
@@ -29,9 +30,10 @@ export class LoginComponent {
   constructor(fb: FormBuilder,
               private authService: AuthenticationService,
               private router: Router,
-              private snackBar: MatSnackBar) {
-
-    // build the FormGroup to bind to the form
+              private location: Location,
+              private snackBar: MatSnackBar,
+              private route: ActivatedRoute) {
+    // build the FormGroup to bind to the for
     this.loginForm = fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -73,7 +75,14 @@ export class LoginComponent {
    * Called when the AuthenticationService successfully logs in
    */
   private success() {
-    this.router.navigateByUrl('/forums');
+    const snapshot = this.route.snapshot;
+    const params = snapshot.queryParamMap;
+    if (params.has('return_to_previous') &&
+      params.get('return_to_previous') === 'true') {
+      this.location.back();
+    } else {
+      this.router.navigateByUrl('/forums');
+    }
     this.snackBar.open(this.successMessage, 'ok', this.snackBarConfiguration);
   }
 
