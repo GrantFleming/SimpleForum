@@ -43,7 +43,7 @@ export class RegisterComponent {
     const password = formValues.password;
 
     this.authService.registerNewUser(email, password).subscribe({
-      error: err => this.failure(err),
+      error: () => this.failure(),
       complete: () => this.success()
     });
   }
@@ -53,8 +53,7 @@ export class RegisterComponent {
    *
    * Display failure notification and reset password fields.
    */
-  private failure(err: any) {
-    console.error(err);
+  private failure() {
     this.registerForm.controls.password.reset();
     this.registerForm.controls.confirmPassword.reset();
 

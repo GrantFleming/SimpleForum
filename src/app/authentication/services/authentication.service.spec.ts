@@ -249,7 +249,7 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
     expect(headers.get('Content-Type')).toContain('application/x-www-form-urlencoded');
   });
 
-  it('should complete successfully on 201 response', () => fakeAsync(() => {
+  it('should complete successfully on 201 response', fakeAsync(() => {
     mockHttpClient.post.and.returnValue(asyncData(new HttpResponse({status: 201})));
 
     let complete = false;

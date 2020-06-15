@@ -128,7 +128,7 @@ describe('RegisterComponent', () => {
   });
 
   it('should open snackbar warning on unsuccessful registration', fakeAsync(() => {
-    mockAuthService.registerNewUser.and.returnValue(asyncError('some error'));
+    mockAuthService.registerNewUser.and.returnValue(asyncError(new Error('some error')));
 
     updateForm('someValid@email.com', 'someValidPassword', 'someValidPassword');
     clickSubmitButton();

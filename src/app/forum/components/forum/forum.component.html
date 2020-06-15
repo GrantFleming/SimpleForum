@@ -1,17 +1,26 @@
 <div class="control-bar">
-  <button [routerLink]="['/forums']" class="forum-explorer-button" color="primary" mat-raised-button>Forum Explorer
+  <button class="forum-explorer-button" color="primary" mat-raised-button routerLink="/forums">Forum Explorer
   </button>
 </div>
+
 <div *ngIf="forum; else loading" class="container">
+
   <h2 class="forum-name">{{forum.name}}</h2>
   <p class="forum-desc">{{forum.description}}</p>
+
   <app-post-feed #feedComponent [forumId]=forum.id></app-post-feed>
-  <app-add-post (newPostEvent)="feedComponent.addPost($event)" *ngIf="authService.isLoggedIn()"
+
+  <app-add-post (newPostEvent)="feedComponent.addPost($event)" *ngIf="authService.isLoggedIn(); else login_prompt"
                 [forumId]="forum.id"></app-add-post>
-  <button *ngIf="!authService.isLoggedIn()" [queryParams]="{return_to_previous: true}" color="primary" mat-raised-button
-          routerLink="/user/login">Log in to add your own posts!
-  </button>
+
+  <ng-template #login_prompt>
+    <button [queryParams]="{return_to_previous: true}" class="login_prompt" color="primary" mat-raised-button
+            routerLink="/user/login">Log in to add your own posts!
+    </button>
+  </ng-template>
+
 </div>
+
 <ng-template #loading>
   <div class="container loading-widget">
     We are loading your content

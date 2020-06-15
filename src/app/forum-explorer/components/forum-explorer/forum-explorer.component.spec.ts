@@ -2,7 +2,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {ForumExplorerComponent} from './forum-explorer.component';
 import {By} from '@angular/platform-browser';
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, Directive, EventEmitter, Input, Output} from '@angular/core';
 import {Forum} from '../../../forum/models/Forum';
 import {ActivatedRoute} from '@angular/router';
 import {AuthenticationService} from '../../../authentication/services/authentication.service';
@@ -21,7 +21,8 @@ describe('ForumExplorerComponent', () => {
       declarations: [
         ForumExplorerComponent,
         MockForumListComponent,
-        MockAddForumComponent
+        MockAddForumComponent,
+        QueryParamsStubDirective
       ],
       providers: [
         {provide: ActivatedRoute, useValue: mockActivatedRoute},
@@ -75,6 +76,12 @@ describe('ForumExplorerComponent', () => {
     eventEmitter.emit(testForum);
     expect(mockForumList.lastAddedForum).toBe(testForum);
   });
+
+  it('should display a login-prompt instead of a new forum form if the user is not logged in', () => {
+    // user is not logged in by default in this test suite
+    const loginButtonDe = fixture.debugElement.query(By.css('button[routerLink]'));
+    expect(loginButtonDe.attributes.routerLink).toEqual('/user/login');
+  });
 });
 
 @Component({
@@ -95,4 +102,12 @@ class MockForumListComponent {
 })
 class MockAddForumComponent {
   @Output() newForumEvent = new EventEmitter();
+}
+
+@Directive({
+// tslint:disable-next-line:directive-selector
+  selector: '[queryParams]'
+})
+export class QueryParamsStubDirective {
+  @Input('queryParams') params: any;
 }
