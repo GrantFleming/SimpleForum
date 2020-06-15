@@ -4,8 +4,12 @@
 
 export const environment = {
   production: false,
-  liveBackend: false,
-  backendHost: 'api'
+  backendHost: 'http://localhost:8080',
+  postsEndpoint: '/api/posts',
+  forumsEndpoint: '/api/forums',
+  userRegistrationEndpoint: '/user/register',
+  emailValidationEndpoint: '/user/validateEmail',
+  tokenRetrievalEndpoint: '/auth/token'
 };
 
 /*

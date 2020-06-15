@@ -23,6 +23,7 @@ const routes: Routes = [
     }
   },
   {path: 'forums', loadChildren: () => import('./forum-explorer/forum-explorer.module').then(m => m.ForumExplorerModule)},
+  {path: 'user', loadChildren: () => import('./authentication/authentication.module').then(m => m.AuthenticationModule)},
   {path: 'page-not-found', component: Error404Component},
   {path: '**', redirectTo: 'page-not-found', pathMatch: 'full'}
 ];

@@ -2,24 +2,23 @@ import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/t
 
 import {ForumComponent} from './forum.component';
 import {Component, Directive, HostListener, Input} from '@angular/core';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, of} from 'rxjs';
 import {By} from '@angular/platform-browser';
 import {Post} from '../../models/post';
 import {ForumService} from '../../services/forum.service';
 import {Forum} from '../../models/Forum';
 import {asyncData, asyncError} from '../../../test_utils/test_async_utils';
+import {AuthenticationService} from '../../../authentication/services/authentication.service';
 
 describe('ForumComponent', () => {
   let fixture: ComponentFixture<ForumComponent>;
   let component: ForumComponent;
   const testForumId = 3;
-
   // The ActivatedRoute spy
   const routeSpy = {
     paramMap: of({get: (ignored: any) => testForumId})
   };
-
   // the ForumService spy
   const testForum: Forum = {id: testForumId, name: 'a forum name', description: 'a forum description'};
   const mockForumService: Partial<ForumService> = {
@@ -27,22 +26,26 @@ describe('ForumComponent', () => {
       return asyncData(testForum);
     }
   };
-
   const routerSpy = jasmine.createSpyObj(Router, ['navigateByUrl']);
+  let mockAuthService;
+
 
   beforeEach(async(() => {
+    mockAuthService = {isLoggedIn: () => false};
+
     TestBed.configureTestingModule({
       declarations: [
         ForumComponent,
         MockPostFeedComponent,
         MockAddPostComponent,
-        RouterLinkDirectiveStub
+        RouterLinkStubDirective,
+        QueryParamsStubDirective
       ],
       providers: [
         {provide: ActivatedRoute, useValue: routeSpy},
         {provide: ForumService, useValue: mockForumService},
-        {provide: RouterLink, useValue: RouterLinkDirectiveStub},
-        {provide: Router, useValue: routerSpy}
+        {provide: Router, useValue: routerSpy},
+        {provide: AuthenticationService, useValue: mockAuthService}
       ]
     })
       .compileComponents();
@@ -70,19 +73,17 @@ describe('ForumComponent', () => {
   });
 
   it('should contain a post feed for the forum', fakeAsync(() => {
-    fixture.detectChanges(); // ngOnInit
-    tick();
-    fixture.detectChanges(); // update the view
+    retrieveDataAndRender(fixture);
 
     const postFeedDe = fixture.debugElement.query(By.css('app-post-feed'));
     expect(postFeedDe).toBeTruthy();
     expect(postFeedDe.componentInstance.forumId).toBe(testForumId);
   }));
 
-  it('should contain an add post component after the forum is loaded from ForumService', fakeAsync(() => {
-    fixture.detectChanges(); // ngOnInit
-    tick(); // get the forum etc
-    fixture.detectChanges(); // updated the view
+  it('should contain an add post component if the user is logged in after the forum is loaded from ForumService', fakeAsync(() => {
+    mockAuthService.isLoggedIn = () => true;
+
+    retrieveDataAndRender(fixture);
 
     const addPostDe = fixture.debugElement.query(By.css('app-add-post'));
     expect(addPostDe).toBeTruthy();
@@ -96,9 +97,7 @@ describe('ForumComponent', () => {
   });
 
   it('should display the forum name after it has loaded', fakeAsync(() => {
-    fixture.detectChanges(); // ngOnInit
-    tick();
-    fixture.detectChanges(); // update the view
+    retrieveDataAndRender(fixture);
 
     const forumNameDe = fixture.debugElement.query(By.css('.forum-name'));
     expect(forumNameDe).toBeTruthy('the element that displays the forum name should exist');
@@ -107,9 +106,7 @@ describe('ForumComponent', () => {
   }));
 
   it('should display the forum descriptions', fakeAsync(() => {
-    fixture.detectChanges(); // ngOnInit
-    tick();
-    fixture.detectChanges(); // update the view
+    retrieveDataAndRender(fixture);
 
     const forumDescDe = fixture.debugElement.query(By.css('.forum-desc'));
     expect(forumDescDe).toBeTruthy('the element that displays the forum description should exist');
@@ -126,8 +123,8 @@ describe('ForumComponent', () => {
     fixture.detectChanges();
     const forumExplorerButtonDe = fixture.debugElement.query(By.css('.control-bar .forum-explorer-button'));
     forumExplorerButtonDe.nativeElement.click();
-    const routerLink = forumExplorerButtonDe.injector.get(RouterLinkDirectiveStub);
-    expect(routerLink.navigatedTo).toEqual(['/forums']);
+    const routerLink = forumExplorerButtonDe.injector.get(RouterLinkStubDirective);
+    expect(routerLink.navigatedTo).toEqual('/forums');
   }));
 
   it('should navigate to "/page-not-found" if the ForumService errors', fakeAsync(() => {
@@ -138,7 +135,27 @@ describe('ForumComponent', () => {
     tick(); // allow the error to be returned asynchronously
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/page-not-found', jasmine.anything());
   }));
+
+  it('should display a login-prompt instead of a new forum form if the user is not logged in', fakeAsync(() => {
+    retrieveDataAndRender(fixture);
+
+    // user is not logged in by default in this test suite
+    const loginButtonDe = fixture.debugElement.query(By.css('button.login_prompt'));
+    expect(loginButtonDe.attributes.routerLink).toEqual('/user/login');
+  }));
 });
+
+/**
+ * Initializes the component, awaits component requested data then calls
+ * change detection to render the final component.
+ *
+ * Only to be used inside fakeAsync zone
+ */
+function retrieveDataAndRender(fixture: ComponentFixture<ForumComponent>) {
+  fixture.detectChanges();  // ngOnInit
+  tick();                   // to allow the forum service to return data
+  fixture.detectChanges();  // and render the final template after data retrieval
+}
 
 @Component({
   selector: 'app-post-feed',
@@ -164,8 +181,7 @@ class MockAddPostComponent {
   // tslint:disable-next-line:directive-selector
   selector: '[routerLink]'
 })
-// tslint:disable-next-line:directive-class-suffix
-export class RouterLinkDirectiveStub {
+export class RouterLinkStubDirective {
   @Input('routerLink') linkParams: any;
   navigatedTo: any = null;
 
@@ -173,4 +189,12 @@ export class RouterLinkDirectiveStub {
   onClick() {
     this.navigatedTo = this.linkParams;
   }
+}
+
+@Directive({
+// tslint:disable-next-line:directive-selector
+  selector: '[queryParams]'
+})
+export class QueryParamsStubDirective {
+  @Input('queryParams') params: any;
 }

@@ -1,6 +1,6 @@
 import {PostService} from './post.service';
 import {Post} from '../models/post';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {fakeAsync, tick} from '@angular/core/testing';
 import {asyncData, asyncError, genericError} from '../../test_utils/test_async_utils';
 import {environment} from '../../../environments/environment';
@@ -58,7 +58,7 @@ describe('PostService \'getPosts\' method', () => {
     service.getPosts(exampleForumId).subscribe();
     tick(); // fills the cache as the server response above is emitted
     expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/posts?forumId=${exampleForumId}`,
+      `${environment.backendHost}${environment.postsEndpoint}?forumId=${exampleForumId}`,
       {headers: jasmine.anything(), observe: 'response'});
     mockHttpClient.get.calls.reset();
 
@@ -67,7 +67,7 @@ describe('PostService \'getPosts\' method', () => {
     service.getPosts(exampleForumId);
     const expectedHeaders = new HttpHeaders().set('If-Modified-Since', creationDate.toUTCString());
     expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/posts?forumId=${exampleForumId}`,
+      `${environment.backendHost}${environment.postsEndpoint}?forumId=${exampleForumId}`,
       {headers: expectedHeaders, observe: 'response'});
   }));
 
@@ -101,7 +101,8 @@ describe('PostService \'getPosts\' method', () => {
       of({}) // response doesn't matter
     );
     service.getPosts(666).subscribe();
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/posts?forumId=666`, jasmine.anything());
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.postsEndpoint}?forumId=666`, jasmine.anything());
   });
 
   it('should return posts from server on first call where cache is empty', fakeAsync(() => {
@@ -220,10 +221,11 @@ describe('PostService \'addPost\' method', () => {
     // to the correct endpoint with the correct payload
     mockHttpClient.post.and.returnValue(asyncData('any'));
     service.addPost(examplePost);
-    expect(mockHttpClient.post).toHaveBeenCalledWith(`${environment.backendHost}/posts`, examplePost, jasmine.anything());
+    expect(mockHttpClient.post).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.postsEndpoint}`, examplePost, jasmine.anything());
   });
 
-  it('should return null on error', fakeAsync(() => {
+  it('should throw error on httpClient error', fakeAsync(() => {
     // The lack of an id in the returned post is an indication that an error occurred
     // this includes a 404 via HttpErrorResponse
     mockHttpClient.post.and.returnValue(
@@ -233,8 +235,8 @@ describe('PostService \'addPost\' method', () => {
     post.title = 'a title';
     post.body = 'some body text';
     service.addPost(post).subscribe(
-      value => expect(value).toBeNull(),
-      () => fail('expected a Post object, not an error'));
+      () => fail('should not emit here'),
+      err => expect(err).toBeInstanceOf(Error));
   }));
 
   it('should not try to add a post that already has an id', () => {
@@ -299,5 +301,26 @@ describe('PostService \'addPost\' method', () => {
     );
     tick();
     expect(emissions).toBe(1);
+  }));
+
+  it('should translate an error from the httpClient if it was a 403', fakeAsync(() => {
+    mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 403})));
+    service.addPost({body: '', forumId: 0, id: undefined, title: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err.message).toContain('Post creation unsuccessful'),
+      () => fail('Observable should not complete here')
+    );
+    tick();
+  }));
+
+  it('should pass through an error that is not a 403 unaltered', fakeAsync(() => {
+    const originalError = new HttpErrorResponse({status: 500});
+    mockHttpClient.post.and.returnValue(asyncError(originalError));
+    service.addPost({body: '', forumId: 0, id: undefined, title: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err).toEqual(originalError),
+      () => fail('Observable should not complete here')
+    );
+    tick();
   }));
 });

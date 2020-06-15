@@ -1,9 +1,9 @@
 import {fakeAsync, tick} from '@angular/core/testing';
 
 import {ForumService} from './forum.service';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
-import {asyncData} from '../../test_utils/test_async_utils';
+import {asyncData, asyncError} from '../../test_utils/test_async_utils';
 import {defer, EMPTY} from 'rxjs';
 import {Forum} from '../models/Forum';
 
@@ -53,14 +53,16 @@ describe('ForumService \'getForums\' method', () => {
     mockHttpClient.get.and.returnValue(asyncData(successfulResponse));
     service.getForums().subscribe();
     tick(); // fills the cache as the server response above is emitted
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/forums`, {headers: new HttpHeaders(), observe: 'response'});
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}`, {headers: new HttpHeaders(), observe: 'response'});
     mockHttpClient.get.calls.reset();
 
     // if there is a cache, 'if-modified-since' header should be the oldest date in the cache
     mockHttpClient.get.and.returnValue(EMPTY);
     service.getForums();
     const expectedHeaders = new HttpHeaders().set('If-Modified-Since', modifiedDate.toUTCString());
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/forums`, {headers: expectedHeaders, observe: 'response'});
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}`, {headers: expectedHeaders, observe: 'response'});
   }));
 
   it('should return forums from server on first call where cache is empty', fakeAsync(() => {
@@ -146,7 +148,6 @@ describe('ForumService \'getForums\' method', () => {
   }));
 });
 
-
 describe('ForumService \'getForum(forumId)\' method', () => {
   let service: ForumService;
   let mockHttpClient;
@@ -183,7 +184,7 @@ describe('ForumService \'getForum(forumId)\' method', () => {
     service.getForum(1).subscribe();
     tick(); // fills the cache as the server response above is emitted
     expect(mockHttpClient.get).toHaveBeenCalledWith(
-      `${environment.backendHost}/forums/1`,
+      `${environment.backendHost}${environment.forumsEndpoint}/1`,
       {headers: new HttpHeaders(), observe: 'response'});
     mockHttpClient.get.calls.reset();
 
@@ -191,7 +192,8 @@ describe('ForumService \'getForum(forumId)\' method', () => {
     mockHttpClient.get.and.returnValue(EMPTY);
     service.getForum(1);
     const expectedHeaders = new HttpHeaders().set('If-Modified-Since', modifiedDate.toUTCString());
-    expect(mockHttpClient.get).toHaveBeenCalledWith(`${environment.backendHost}/forums/1`, {headers: expectedHeaders, observe: 'response'});
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}/1`, {headers: expectedHeaders, observe: 'response'});
   }));
 
   it('should return the correct forum from server on first call where cache is empty', fakeAsync(() => {
@@ -284,7 +286,6 @@ describe('ForumService \'getForum(forumId)\' method', () => {
   }));
 });
 
-
 describe('ForumService \'addForum\' method ', () => {
 
   let service: ForumService;
@@ -310,7 +311,8 @@ describe('ForumService \'addForum\' method ', () => {
     // to the correct endpoint with the correct payload
     mockHttpClient.post.and.returnValue(asyncData('any'));
     service.addForum(exampleForum);
-    expect(mockHttpClient.post).toHaveBeenCalledWith(`${environment.backendHost}/forums`, exampleForum, jasmine.anything());
+    expect(mockHttpClient.post).toHaveBeenCalledWith(
+      `${environment.backendHost}${environment.forumsEndpoint}`, exampleForum, jasmine.anything());
   });
 
   it('should throw an error if the supplied forum already has an id', () => {
@@ -378,5 +380,26 @@ describe('ForumService \'addForum\' method ', () => {
       () => fail('should not error here')
     );
     expect(emissions).toBe(1);
+  }));
+
+  it('should translate an error from the httpClient if it was a 403', fakeAsync(() => {
+    mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 403})));
+    service.addForum({description: '', id: undefined, name: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err.message).toContain('Forum creation unsuccessful'),
+      () => fail('Observable should not complete here')
+    );
+    tick();
+  }));
+
+  it('should pass through an error that is not a 403 unaltered', fakeAsync(() => {
+    const originalError = new HttpErrorResponse({status: 500});
+    mockHttpClient.post.and.returnValue(asyncError(originalError));
+    service.addForum({description: '', id: undefined, name: ''}).subscribe(
+      () => fail('Observable should not emit here'),
+      err => expect(err).toEqual(originalError),
+      () => fail('Observable should not complete here')
+    );
+    tick();
   }));
 });

@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {concat, EMPTY, Observable, of} from 'rxjs';
 import {Forum} from '../models/Forum';
 import {environment} from '../../../environments/environment';
-import {defaultIfEmpty, filter, map, pluck, tap} from 'rxjs/operators';
+import {catchError, defaultIfEmpty, filter, map, pluck, tap} from 'rxjs/operators';
 
 const cudOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'}),
@@ -32,6 +32,7 @@ export class ForumService {
    * replace them
    */
   private cache: Map<number, [Forum, Date]> = new Map();
+  private baseURL = `${environment.backendHost}${environment.forumsEndpoint}`;
 
   constructor(private http: HttpClient) {
   }
@@ -71,8 +72,7 @@ export class ForumService {
       headers = headers.set('If-Modified-Since', oldestDate.toUTCString());
     }
 
-    const serverResponse$ = this.http.get(
-      `${environment.backendHost}/forums`,
+    const serverResponse$ = this.http.get(this.baseURL,
       {headers, observe: 'response'});
 
     // If we are supplied newer forums, update the cache then return them
@@ -131,7 +131,7 @@ export class ForumService {
     }
 
     const serverResponse$ = this.http.get(
-      `${environment.backendHost}/forums/${id}`,
+      `${this.baseURL}/${id}`,
       {headers, observe: 'response'});
 
     // If we are supplied a newer forum, update the cache then return it
@@ -172,7 +172,7 @@ export class ForumService {
     }
 
     const postRequest$ = this.http.post<Forum>(
-      `${environment.backendHost}/forums`,
+      this.baseURL,
       newForum,
       cudOptions);
 
@@ -188,6 +188,14 @@ export class ForumService {
             return null;
           }
         }
-      ));
+      ),
+      catchError(err => {
+        // map error to a more helpful error message
+        if (err.status === 403) {
+          throw new Error('Forum creation unsuccessful: server failed to authorize the request');
+        }
+        throw err;
+      })
+    );
   }
 }
