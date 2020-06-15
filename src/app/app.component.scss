@@ -1,11 +1,20 @@
+mat-sidenav-container {
+  height: 100%;
+}
+
+span.burger_menu {
+  font-size: 2em;
+  margin-left: 0.5em;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
 .siteTitle {
+  display: inline;
   padding-top: 0.5em;
   padding-left: 0.5em;
-
-  &:before {
-    content: '\2630';
-    margin-right: 0.5em;
-  }
 
   .super-light {
     font-weight: 100;

@@ -7,17 +7,23 @@ import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {AuthenticationModule} from './authentication/authentication.module';
 import {httpInterceptorProviders} from './http-interceptors';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MainMenuComponent} from './main-menu/main-menu.component';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MainMenuComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    AuthenticationModule
+    AuthenticationModule,
+    MatSidenavModule,
+    MatButtonModule
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
