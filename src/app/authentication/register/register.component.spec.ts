@@ -19,7 +19,7 @@ describe('RegisterComponent', () => {
   let mockSnackBar: MatSnackBar;
 
   beforeEach(async(() => {
-    mockAuthService = jasmine.createSpyObj(AuthenticationService, ['registerNewUser', 'isEmailAlreadyTaken']);
+    mockAuthService = jasmine.createSpyObj(AuthenticationService, ['registerNewUser', 'isEmailAlreadyTaken', 'isAliasAlreadyTaken']);
     mockRouter = jasmine.createSpyObj(Router, ['navigateByUrl']);
     mockSnackBar = jasmine.createSpyObj(MatSnackBar, ['open']);
 
@@ -28,6 +28,8 @@ describe('RegisterComponent', () => {
     mockAuthService.registerNewUser.and.returnValue(EMPTY);
     // make emails available by default, can be overridden by specific tests if need be
     mockAuthService.isEmailAlreadyTaken.and.returnValue(of(false));
+    // make aliases available by default, can be overridden by specific tests if need be
+    mockAuthService.isAliasAlreadyTaken.and.returnValue(of(false));
 
     TestBed.configureTestingModule({
       declarations: [
@@ -54,19 +56,21 @@ describe('RegisterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have an email, password and confirmation field', () => {
+  it('should have an email, alias, password and confirm password fields', () => {
     // in the FormGroup
     const controls = component.registerForm.controls;
     const controlNames = Object.keys(controls);
-    expect(controlNames.length).toBe(3);
+    expect(controlNames.length).toBe(4);
     expect(controlNames).toContain('email');
+    expect(controlNames).toContain('alias');
     expect(controlNames).toContain('password');
     expect(controlNames).toContain('confirmPassword');
 
     // and the template linking to the FormGroup
     const inputIDs = fixture.debugElement.queryAll(By.css('input')).map(de => de.attributes.formControlName);
-    expect(inputIDs.length).toBe(3);
+    expect(inputIDs.length).toBe(4);
     expect(inputIDs).toContain('email');
+    expect(inputIDs).toContain('alias');
     expect(inputIDs).toContain('password');
     expect(inputIDs).toContain('confirmPassword');
   });
@@ -85,44 +89,52 @@ describe('RegisterComponent', () => {
 
   it('should attempt registration on submission when all fields are valid', () => {
     const email = 'someValid@email.com';
+    const alias = 'someValidAlias';
     const password = 'someValidPassword';
     const confirmPassword = 'someValidPassword';
-    updateForm(email, password, confirmPassword);
+    updateForm(email, alias, password, confirmPassword);
     clickSubmitButton();
-    expect(mockAuthService.registerNewUser).toHaveBeenCalledWith(email, password);
+    expect(mockAuthService.registerNewUser).toHaveBeenCalledWith(email, alias, password);
   });
 
   it('should disable the submit button if any fields are invalid', () => {
     // invalid email
-    updateForm('invalidEmail', 'someValidPassword', 'someValidPassword');
+    updateForm('invalidEmail', 'someValidAlias', 'someValidPassword', 'someValidPassword');
     expect(fixture.debugElement.query(By.css('button[type=submit][disabled]'))).toBeTruthy();
 
     // no email
-    updateForm('', 'someValidPassword', 'someValidPassword');
+    updateForm('', 'someValidAlias', 'someValidPassword', 'someValidPassword');
     expect(fixture.debugElement.query(By.css('button[type=submit][disabled]'))).toBeTruthy();
 
     // no password
-    updateForm('valid@email.com');
+    updateForm('valid@email.com', 'someValidAlias');
     expect(fixture.debugElement.query(By.css('button[type=submit][disabled]'))).toBeTruthy();
 
     // password mismatch
-    updateForm('valid@email.com', 'someValidPassword', 'nonMatchingPassword');
+    updateForm('valid@email.com', 'someValidAlias', 'someValidPassword', 'nonMatchingPassword');
     expect(fixture.debugElement.query(By.css('button[type=submit][disabled]'))).toBeTruthy();
 
-    // email is already taken - WARNING THIS TEST MUST COME LAST WITHIN THIS SPEC!
+    // email is already taken
     mockAuthService.isEmailAlreadyTaken.and.returnValue(of(true));
-    updateForm('existing@email.com', 'someValidPassword', 'someValidPassword');
+    updateForm('existing@email.com', 'someValidAlias', 'someValidPassword', 'someValidPassword');
     expect(fixture.debugElement.query(By.css('button[type=submit][disabled]'))).toBeTruthy();
+    mockAuthService.isEmailAlreadyTaken.and.returnValue(of(false)); // set it back
+
+    // alias is already taken
+    mockAuthService.isAliasAlreadyTaken.and.returnValue(of(true));
+    updateForm('existing@email.com', 'someInvalidAlias', 'someValidPassword', 'someValidPassword');
+    expect(fixture.debugElement.query(By.css('button[type=submit][disabled]'))).toBeTruthy();
+    mockAuthService.isAliasAlreadyTaken.and.returnValue(of(false)); // set it back
   });
 
   it('should enable the submit button if all fields are valid', () => {
-    updateForm('valid@email.com', 'someValidPassword', 'someValidPassword');
+    updateForm('valid@email.com', 'someValidAlias', 'someValidPassword', 'someValidPassword');
     const buttonDe = fixture.debugElement.query(By.css('button[type=submit]'));
     expect(Object.keys(buttonDe.attributes)).not.toContain('disabled');
   });
 
   it('should redirect users to the login page on successful registration', () => {
-    updateForm('someValid@email.com', 'someValidPassword', 'someValidPassword');
+    updateForm('someValid@email.com', 'someValidAlias', 'someValidPassword', 'someValidPassword');
     clickSubmitButton();
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/user/login');
   });
@@ -130,14 +142,15 @@ describe('RegisterComponent', () => {
   it('should open snackbar warning on unsuccessful registration', fakeAsync(() => {
     mockAuthService.registerNewUser.and.returnValue(asyncError(new Error('some error')));
 
-    updateForm('someValid@email.com', 'someValidPassword', 'someValidPassword');
+    updateForm('someValid@email.com', 'someValidAlias', 'someValidPassword', 'someValidPassword');
     clickSubmitButton();
     tick();
     expect(mockSnackBar.open).toHaveBeenCalled();
   }));
 
-  function updateForm(email: string = '', password: string = '', passwordConfirmation: string = '') {
+  function updateForm(email: string = '', alias: string = '', password: string = '', passwordConfirmation: string = '') {
     component.registerForm.controls.email.setValue(email);
+    component.registerForm.controls.alias.setValue(alias);
     component.registerForm.controls.password.setValue(password);
     component.registerForm.controls.confirmPassword.setValue(passwordConfirmation);
     fixture.detectChanges();

@@ -20,7 +20,7 @@ describe('ForumComponent', () => {
     paramMap: of({get: (ignored: any) => testForumId})
   };
   // the ForumService spy
-  const testForum: Forum = {id: testForumId, name: 'a forum name', description: 'a forum description'};
+  const testForum: Forum = {id: testForumId, name: 'a forum name', description: 'a forum description', creator: 'a creator'};
   const mockForumService: Partial<ForumService> = {
     getForum(id: number): Observable<Forum> {
       return asyncData(testForum);

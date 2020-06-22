@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
-import {emailAvailabilityValidator, passwordMatchValidator} from './RegistrationValidator';
+import {aliasAvailabilityValidator, emailAvailabilityValidator, passwordMatchValidator} from './RegistrationValidator';
 
 @Component({
   selector: 'app-register',
@@ -30,22 +30,15 @@ export class RegisterComponent {
 
     this.registerForm = fb.group({
       email: ['', [Validators.required, Validators.email], emailAvailabilityValidator(authService)],
+      alias: ['', Validators.required, aliasAvailabilityValidator(authService)],
       password: ['', Validators.required],
       confirmPassword: ['', Validators.required]
     }, {validators: passwordMatchValidator});
   }
 
-  /**
-   * Form submission callback
-   */
-  onSubmit(formValues: any) {
-    const email = formValues.email;
-    const password = formValues.password;
-
-    this.authService.registerNewUser(email, password).subscribe({
-      error: () => this.failure(),
-      complete: () => this.success()
-    });
+  get aliasErrors(): string[] {
+    const errors = this.registerForm.controls.alias.errors;
+    return errors ? Object.keys(errors) : [];
   }
 
   /**
@@ -73,6 +66,20 @@ export class RegisterComponent {
   get emailErrors(): string[] {
     const errors = this.registerForm.controls.email.errors;
     return errors ? Object.keys(errors) : [];
+  }
+
+  /**
+   * Form submission callback
+   */
+  onSubmit(formValues: any) {
+    const email = formValues.email;
+    const alias = formValues.alias;
+    const password = formValues.password;
+
+    this.authService.registerNewUser(email, alias, password).subscribe({
+      error: () => this.failure(),
+      complete: () => this.success()
+    });
   }
 
   get passwordErrors(): string[] {

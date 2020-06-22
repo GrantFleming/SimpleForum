@@ -15,12 +15,14 @@ describe('ForumListComponent', () => {
     {
       id: 1,
       name: 'name1',
-      description: 'description1'
+      description: 'description1',
+      creator: 'creator1'
     },
     {
       id: 2,
       name: 'name2',
-      description: 'description2'
+      description: 'description2',
+      creator: 'creator2'
     }
   ];
   const forumServiceSpy = jasmine.createSpyObj('ForumService', ['getForums']);
@@ -83,7 +85,8 @@ describe('ForumListComponent', () => {
       {
         id: 9,
         name: 'new name',
-        description: 'new description'
+        description: 'new description',
+        creator: 'new creator'
       }
     ];
     forumServiceSpy.getForums.and.returnValue(asyncData(newForums));
@@ -93,11 +96,12 @@ describe('ForumListComponent', () => {
     expect(forumInfoComponentsDes.length).toBe(newForums.length);
     expect(forumInfoComponentsDes.map(value => value.componentInstance.forum)).toEqual(newForums);
 
-    const moreNewForums = [
+    const moreNewForums: Forum[] = [
       {
         id: 12,
         name: 'another new name',
-        descriptions: 'another new description'
+        description: 'another new description',
+        creator: 'another creator'
       }
     ];
     forumServiceSpy.getForums.and.returnValue(asyncData(moreNewForums));
@@ -126,7 +130,8 @@ describe('ForumListComponent', () => {
     const newForum: Forum = {
       id: 666,
       name: 'a newer forum',
-      description: 'a newer description'
+      description: 'a newer description',
+      creator: 'a creator'
     };
 
     component.addForum(newForum);

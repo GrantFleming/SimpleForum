@@ -2,7 +2,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {ForumInfoComponent} from './forum-info.component';
 import {Forum} from '../../../forum/models/Forum';
-import {Component, Directive, HostListener, Input} from '@angular/core';
+import {Component, DebugElement, Directive, HostListener, Input} from '@angular/core';
 import {By} from '@angular/platform-browser';
 import {MatCardModule} from '@angular/material/card';
 
@@ -31,7 +31,8 @@ describe('ForumInfoComponent', () => {
     testForum = {
       id: 1,
       name: 'default',
-      description: 'default'
+      description: 'default',
+      creator: 'the creator'
     };
     fixture = TestBed.createComponent(WrapperComponent);
     wrapper = fixture.componentInstance;
@@ -61,6 +62,14 @@ describe('ForumInfoComponent', () => {
     fixture.detectChanges();
     const titleDe = fixture.debugElement.query(By.css('.desc'));
     expect(titleDe.nativeElement.textContent).toEqual(testDesc);
+  });
+
+  it('should display the forum creator', () => {
+    wrapper.forum = testForum;
+    fixture.detectChanges();
+    const creatorDe: DebugElement = fixture.debugElement.query(By.css('.creator'));
+    const creatorNe = creatorDe.nativeElement;
+    expect(creatorNe.textContent).toEqual(testForum.creator);
   });
 
   it('should contain a button to the described forum', () => {

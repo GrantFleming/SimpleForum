@@ -70,15 +70,16 @@ describe('AddForumComponent', () => {
   it('should create a form that has fields for each element of a Forum (except id)', () => {
     const controls = component.newForumForm.controls;
     // so the type checker will remind us if we ever update the Forum model
-    const emptyForum: Forum = {id: null, name: null, description: null};
+    const emptyForum: Forum = {id: null, name: null, description: null, creator: null};
     expect(Object.keys(controls).length)
       .toBe(
-        // -1 as the form should not render a control for the ID
-        Object.getOwnPropertyNames(emptyForum as Forum).length - 1,
+        // -2 as the form should not render a control for the ID or the creator
+        // theses properties are populated server-side
+        Object.getOwnPropertyNames(emptyForum as Forum).length - 2,
         'doesn\'t have the right number of controls');
 
     for (const key of Object.keys(emptyForum as Forum)) {
-      if (key === 'id') {
+      if (key === 'id' || key === 'creator') {
         continue;
       }
       expect(Object.keys(controls)).toContain(key, 'doesn\'t contain a control for some property of Post');
@@ -96,9 +97,10 @@ describe('AddForumComponent', () => {
 
   it('should submit a post to the forumService on submit', () => {
     const testForum: Forum = {
-      id: null,
+      id: undefined,
       name: 'A forum title',
-      description: 'A forum description'
+      description: 'A forum description',
+      creator: undefined
     };
     updateForm(testForum.name, testForum.description);
     clickSubmitButton();

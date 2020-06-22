@@ -1,5 +1,6 @@
 import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 
+import {Location} from '@angular/common';
 import {LoginComponent} from './login.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {AuthenticationFailedError, AuthenticationService} from '../services/authentication.service';
@@ -19,12 +20,14 @@ describe('LoginComponent', () => {
   let mockRouter: Router;
   let mockSnackBar: MatSnackBar;
   let mockActivatedRoute;
+  let locationSpy;
 
   beforeEach(async(() => {
     mockAuthService = jasmine.createSpyObj(AuthenticationService, ['login']);
     mockRouter = jasmine.createSpyObj(Router, ['navigateByUrl']);
     mockSnackBar = jasmine.createSpyObj(MatSnackBar, ['open']);
     mockActivatedRoute = {snapshot: {queryParamMap: {has: () => false}}};
+    locationSpy = jasmine.createSpyObj(Location, ['back']);
 
     // make authentication attempts successful by default, can be overridden by specific tests if need be
     // (successful login attempts 'complete')
@@ -42,7 +45,8 @@ describe('LoginComponent', () => {
         {provide: AuthenticationService, useValue: mockAuthService},
         {provide: Router, useValue: mockRouter},
         {provide: MatSnackBar, useValue: mockSnackBar},
-        {provide: ActivatedRoute, useValue: mockActivatedRoute}
+        {provide: ActivatedRoute, useValue: mockActivatedRoute},
+        {provide: Location, useValue: locationSpy}
       ]
     })
       .compileComponents();
@@ -136,6 +140,21 @@ describe('LoginComponent', () => {
     expect(mockSnackBar.open).toHaveBeenCalled();
     expect(mockSnackBar.open).toHaveBeenCalledWith((component as any).invalidDetailsMessage, anything(), anything());
   }));
+
+  it('should go back on successful login given correct query parameter', () => {
+    /* if the activated route has parameter 'return_to_previous' the login component
+        should go back to the previous url on successful login and NOT navigate to /forums */
+    mockActivatedRoute.snapshot.queryParamMap = {
+      has: param => param === 'return_to_previous',
+      get: param => param === 'return_to_previous' ? 'true' : undefined
+    };
+
+    updateForm('someValid@email.com', 'someValidPassword');
+    clickSubmitButton();
+    expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+    expect(locationSpy.back).toHaveBeenCalled();
+
+  });
 
   function updateForm(email: string = '', password: string = '') {
     component.loginForm.controls.email.setValue(email);

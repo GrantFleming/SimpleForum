@@ -43,7 +43,7 @@ export class AddForumComponent implements OnInit {
   onSubmit(postData) {
     // submit new post to server and emit the event so the explorer can add
     // the newly created forum to the UI
-    const newForum: Forum = Object.assign({id: null}, postData);
+    const newForum: Forum = Object.assign({id: undefined, creator: undefined}, postData);
     this.forumService.addForum(newForum).subscribe(
       createdForum => this.newForumEvent.emit(createdForum)
     );

@@ -5,5 +5,6 @@ export const environment = {
   forumsEndpoint: '/api/forums',
   userRegistrationEndpoint: '/user/register',
   emailValidationEndpoint: '/user/validateEmail',
+  aliasValidationEndpoint: '/user/validateAlias',
   tokenRetrievalEndpoint: '/auth/token'
 };
