@@ -1,11 +1,13 @@
 import {forumArrayEquals, forumEquals} from './utils';
+import {Forum} from '../models/Forum';
 
 describe('forumEquals', () => {
 
   const testForum = {
     id: 1,
     name: 'a name',
-    description: 'a description'
+    description: 'a description',
+    creator: 'a creator'
   };
 
   it('should return true if only a single argument is given', () => {
@@ -34,13 +36,13 @@ describe('forumEquals', () => {
   });
 
   it('should find that two forums with equal properties are equal', () => {
-    const identicalForum = {id: 1, name: 'a name', description: 'a description'};
+    const identicalForum = {id: 1, name: 'a name', description: 'a description', creator: 'a creator'};
     expect(forumEquals(testForum, identicalForum)).toBeTrue();
   });
 
   it('should find that two forums with even 1 non-equal property are not equal', () => {
     // different id
-    const almostIdenticalForum = {id: 2, name: 'a name', description: 'a description'};
+    const almostIdenticalForum = {id: 2, name: 'a name', description: 'a description', creator: 'a creator'};
     expect(forumEquals(testForum, almostIdenticalForum)).toBeFalse();
     // a different name
     almostIdenticalForum.id = 1;
@@ -49,6 +51,10 @@ describe('forumEquals', () => {
     // a different description
     almostIdenticalForum.name = 'a name';
     almostIdenticalForum.description = 'a different description';
+    expect(forumEquals(testForum, almostIdenticalForum)).toBeFalse();
+    // a different creator
+    almostIdenticalForum.description = 'a description';
+    almostIdenticalForum.creator = 'someone else';
     expect(forumEquals(testForum, almostIdenticalForum)).toBeFalse();
   });
 
@@ -73,25 +79,29 @@ describe('forumArrayEquals', () => {
     {
       id: 1,
       name: 'a name',
-      description: 'a description'
+      description: 'a description',
+      creator: 'a creator'
     },
     {
       id: 2,
       name: 'another name',
-      description: 'another description'
+      description: 'another description',
+      creator: 'a creator'
     }
   ];
 
-  const testForumArrayCopy = [
+  const testForumArrayCopy: Forum[] = [
     {
       id: 1,
       name: 'a name',
-      description: 'a description'
+      description: 'a description',
+      creator: 'a creator'
     },
     {
       id: 2,
       name: 'another name',
-      description: 'another description'
+      description: 'another description',
+      creator: 'a creator'
     }
   ];
 
@@ -112,7 +122,7 @@ describe('forumArrayEquals', () => {
 
   it('should find that arrays of different lengths are not equal', () => {
     const longerArray = testForumArray.slice();
-    longerArray.push({id: 3, name: 'yet another name', description: 'yet another description'});
+    longerArray.push({id: 3, name: 'yet another name', description: 'yet another description', creator: 'yet another creator'});
     expect(forumArrayEquals(testForumArray, longerArray)).toBeFalse();
   });
 

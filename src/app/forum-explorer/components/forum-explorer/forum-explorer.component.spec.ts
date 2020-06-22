@@ -70,7 +70,8 @@ describe('ForumExplorerComponent', () => {
     const testForum: Forum = {
       id: null,
       name: null,
-      description: null
+      description: null,
+      creator: null
     };
 
     eventEmitter.emit(testForum);

@@ -9,18 +9,20 @@ import {By} from '@angular/platform-browser';
 
 describe('PostFeedComponent', () => {
   let postServiceStub: Partial<PostService>;
-  const expectedPosts = [
+  const expectedPosts: Post[] = [
     {
       id: 1,
       forumId: 1,
       title: 'A post',
-      body: 'Some text to make up the body of a post'
+      body: 'Some text to make up the body of a post',
+      creator: 'A creator'
     },
     {
       id: 2,
       forumId: 1,
       title: 'Another post',
-      body: 'Another body of yet another post'
+      body: 'Another body of yet another post',
+      creator: 'Another creator'
     }];
 
   let component: PostFeedComponent;
@@ -95,7 +97,7 @@ describe('PostFeedComponent', () => {
     fixture.detectChanges(); // OnInit
     tick(); // to allow the asynchronous loading of posts from server
 
-    component.addPost({id: 3, forumId: 1, title: 'a third post', body: 'a third body'});
+    component.addPost({id: 3, forumId: 1, title: 'a third post', body: 'a third body', creator: 'another creator'});
     expect(component.posts.length).toBe(3);
 
     fixture.destroy(); // to remove it's update timer from the queue
@@ -105,7 +107,7 @@ describe('PostFeedComponent', () => {
     fixture.detectChanges();
     tick();
 
-    const testPost: Post = {id: 3, forumId: 1, title: 'a third post', body: 'a third body'};
+    const testPost: Post = {id: 3, forumId: 1, title: 'a third post', body: 'a third body', creator: 'another creator'};
     component.addPost(testPost);
     fixture.detectChanges();
 
@@ -174,7 +176,8 @@ describe('PostFeedComponent', () => {
         id: 9,
         forumId: 5,
         title: 'new title',
-        body: 'new body'
+        body: 'new body',
+        creator: 'a creator'
       }
     ];
     postServiceStub.getPosts = (forumId: number) => (forumId ? asyncData<Post[]>([...newPosts]) : null);
@@ -189,7 +192,8 @@ describe('PostFeedComponent', () => {
         id: 12,
         forumId: 4,
         title: 'another new post title',
-        body: 'another new body with more info etc'
+        body: 'another new body with more info etc',
+        creator: 'a creator'
       }
     ];
     postServiceStub.getPosts = (forumId: number) => (forumId ? asyncData<Post[]>([...moreNewPosts]) : null);

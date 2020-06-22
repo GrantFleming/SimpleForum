@@ -34,13 +34,15 @@ describe('PostService \'getPosts\' method', () => {
       id: null,
       forumId: exampleForumId,
       title: 'post title',
-      body: 'post body'
+      body: 'post body',
+      creator: 'a creator'
     },
     {
       id: null,
       forumId: exampleForumId,
       title: 'another post title',
-      body: 'another post body'
+      body: 'another post body',
+      creator: 'a creator'
     }
   ];
   beforeEach(() => {
@@ -123,13 +125,15 @@ describe('PostService \'getPosts\' method', () => {
         id: 1,
         forumId: exampleForumId,
         title: 'post title',
-        body: 'post body'
+        body: 'post body',
+        creator: 'a creator'
       },
       {
         id: 2,
         forumId: exampleForumId,
         title: 'another post title',
-        body: 'another post body'
+        body: 'another post body',
+        creator: 'a creator'
       }
     ];
     mockHttpClient.get.and.returnValue(asyncData(anHttpResponse(200, testPosts)));
@@ -168,13 +172,15 @@ describe('PostService \'getPosts\' method', () => {
         id: 1,
         forumId: exampleForumId,
         title: 'post title',
-        body: 'post body'
+        body: 'post body',
+        creator: 'a creator'
       },
       {
         id: 2,
         forumId: exampleForumId,
         title: 'another post title',
-        body: 'another post body'
+        body: 'another post body',
+        creator: 'a creator'
       }
     ];
     mockHttpClient.get.and.returnValues(
@@ -209,7 +215,8 @@ describe('PostService \'addPost\' method', () => {
     id: null,
     forumId: exampleForumId,
     title: 'post title',
-    body: 'post body'
+    body: 'post body',
+    creator: 'a creator'
   };
 
   beforeEach(() => {
@@ -305,7 +312,7 @@ describe('PostService \'addPost\' method', () => {
 
   it('should translate an error from the httpClient if it was a 403', fakeAsync(() => {
     mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 403})));
-    service.addPost({body: '', forumId: 0, id: undefined, title: ''}).subscribe(
+    service.addPost({body: '', forumId: 0, id: undefined, title: '', creator: undefined}).subscribe(
       () => fail('Observable should not emit here'),
       err => expect(err.message).toContain('Post creation unsuccessful'),
       () => fail('Observable should not complete here')
@@ -316,7 +323,7 @@ describe('PostService \'addPost\' method', () => {
   it('should pass through an error that is not a 403 unaltered', fakeAsync(() => {
     const originalError = new HttpErrorResponse({status: 500});
     mockHttpClient.post.and.returnValue(asyncError(originalError));
-    service.addPost({body: '', forumId: 0, id: undefined, title: ''}).subscribe(
+    service.addPost({body: '', forumId: 0, id: undefined, title: '', creator: undefined}).subscribe(
       () => fail('Observable should not emit here'),
       err => expect(err).toEqual(originalError),
       () => fail('Observable should not complete here')

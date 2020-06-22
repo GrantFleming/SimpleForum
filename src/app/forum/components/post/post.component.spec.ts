@@ -24,7 +24,7 @@ describe('PostComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PostComponent);
     component = fixture.componentInstance;
-    expectedPost = {id: 1, forumId: 1, title: 'A post title', body: 'A post body'};
+    expectedPost = {id: 1, forumId: 1, title: 'A post title', body: 'A post body', creator: 'The Creator'};
     component.post = expectedPost;
     fixture.detectChanges();
   });
@@ -37,6 +37,12 @@ describe('PostComponent', () => {
     const titleDe: DebugElement = fixture.debugElement.query(By.css('.title'));
     const titleNe = titleDe.nativeElement;
     expect(titleNe.textContent).toBe(expectedPost.title);
+  });
+
+  it('should display the creator', () => {
+    const creatorDe: DebugElement = fixture.debugElement.query(By.css('.creator'));
+    const creatorNe = creatorDe.nativeElement;
+    expect(creatorNe.textContent).toBe(expectedPost.creator);
   });
 
   it('should display the body', () => {

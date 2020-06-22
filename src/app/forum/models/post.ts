@@ -6,6 +6,7 @@ export class Post {
    of a fresh Post object */
   id: number;
   forumId: number;
+  creator: string;
   title = '';
   body = '';
 

@@ -24,16 +24,18 @@ describe('ForumService', () => {
 describe('ForumService \'getForums\' method', () => {
   let service: ForumService;
   let mockHttpClient;
-  const exampleForums = [
+  const exampleForums: Forum[] = [
     {
       id: 1,
       name: 'All about cars',
       description: 'All about my favourite cars etc etc etc',
+      creator: 'a creator'
     },
     {
       id: 2,
       name: 'Politics ... raaaaaage',
       description: 'Things that annoy me',
+      creator: 'a creator'
     },
   ];
 
@@ -156,11 +158,13 @@ describe('ForumService \'getForum(forumId)\' method', () => {
       id: 1,
       name: 'All about cars',
       description: 'All about my favourite cars etc etc etc',
+      creator: 'a creator'
     },
     2: {
       id: 2,
       name: 'Politics ... raaaaaage',
       description: 'Things that annoy me',
+      creator: 'a creator'
     }
   };
 
@@ -294,7 +298,8 @@ describe('ForumService \'addForum\' method ', () => {
   const exampleForum: Forum = {
     id: undefined,
     name: 'A forum name',
-    description: 'The description of a forum'
+    description: 'The description of a forum',
+    creator: 'a creator'
   };
 
   function successfulPostResponse(forum: Forum) {
@@ -384,7 +389,7 @@ describe('ForumService \'addForum\' method ', () => {
 
   it('should translate an error from the httpClient if it was a 403', fakeAsync(() => {
     mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 403})));
-    service.addForum({description: '', id: undefined, name: ''}).subscribe(
+    service.addForum({description: '', id: undefined, name: '', creator: null}).subscribe(
       () => fail('Observable should not emit here'),
       err => expect(err.message).toContain('Forum creation unsuccessful'),
       () => fail('Observable should not complete here')
@@ -395,7 +400,7 @@ describe('ForumService \'addForum\' method ', () => {
   it('should pass through an error that is not a 403 unaltered', fakeAsync(() => {
     const originalError = new HttpErrorResponse({status: 500});
     mockHttpClient.post.and.returnValue(asyncError(originalError));
-    service.addForum({description: '', id: undefined, name: ''}).subscribe(
+    service.addForum({description: '', id: undefined, name: '', creator: null}).subscribe(
       () => fail('Observable should not emit here'),
       err => expect(err).toEqual(originalError),
       () => fail('Observable should not complete here')

@@ -28,7 +28,8 @@ export function forumEquals(...forums: Forum[]): boolean {
 
     if (firstForum.id !== forum.id ||
       firstForum.name !== forum.name ||
-      firstForum.description !== forum.description) {
+      firstForum.description !== forum.description ||
+      firstForum.creator !== forum.creator) {
       return false;
     }
   }
