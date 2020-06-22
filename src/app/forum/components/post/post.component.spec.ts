@@ -42,7 +42,7 @@ describe('PostComponent', () => {
   it('should display the creator', () => {
     const creatorDe: DebugElement = fixture.debugElement.query(By.css('.creator'));
     const creatorNe = creatorDe.nativeElement;
-    expect(creatorNe.textContent).toBe(expectedPost.creator);
+    expect(creatorNe.textContent).toContain(expectedPost.creator);
   });
 
   it('should display the body', () => {
