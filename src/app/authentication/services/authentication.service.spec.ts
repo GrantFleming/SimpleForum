@@ -29,7 +29,7 @@ describe('AuthenticationService', () => {
   }
 });
 
-describe('AuthenticationService\'checkEmailAvailability\' method', () => {
+describe('AuthenticationService\'isEmailAlreadyTaken\' method', () => {
 
   let mockHttpClient;
   let service: AuthenticationService;
@@ -87,6 +87,68 @@ describe('AuthenticationService\'checkEmailAvailability\' method', () => {
     expect(mockHttpClient.get)
       .toHaveBeenCalledWith(
         `${environment.backendHost}${environment.emailValidationEndpoint}?email=${email}`,
+        anything());
+  });
+});
+
+describe('AuthenticationService\'isAliasAlreadyTaken\' method', () => {
+
+  let mockHttpClient;
+  let service: AuthenticationService;
+
+  beforeEach(() => {
+    mockHttpClient = jasmine.createSpyObj(['get']);
+    service = new AuthenticationService(mockHttpClient);
+  });
+
+  it('should return an Observable that emits true if the server responds true', fakeAsync(() => {
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({body: true, status: 200})));
+    const result$ = service.isAliasAlreadyTaken('some alias');
+    result$.subscribe(value => expect(value).toBeTrue());
+    tick();
+  }));
+
+  it('should return an Observable that emits false if the server responds \'false\'', fakeAsync(() => {
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({body: false, status: 200})));
+    const result$ = service.isAliasAlreadyTaken('some alias');
+    result$.subscribe(value => expect(value).toBeFalse());
+    tick();
+  }));
+
+  it('should return an Observable that throws an error if the server responds non-200', fakeAsync(() => {
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({status: 400})));
+    const result$ = service.isAliasAlreadyTaken('some alias');
+    result$.subscribe(
+      () => fail('Observable should not emit on server error.'),
+      error => expect(error).toBeTruthy()
+    );
+    tick();
+  }));
+
+  it('should return an Observable that throws an error if the server responds with body that is not true or false', fakeAsync(() => {
+    mockHttpClient.get.and.returnValue(asyncData(new HttpResponse({status: 200, body: 'banana'})));
+    const result$ = service.isAliasAlreadyTaken('some alias');
+    let errorThrown = false;
+    result$.subscribe(
+      () => fail('Observable should not emit on invalid body.'),
+      error => {
+        errorThrown = true;
+        expect(error).toBeTruthy();
+      }
+    );
+    tick();
+    expect(errorThrown).toBeTrue();
+  }));
+
+  it('should make the correct http request', () => {
+    mockHttpClient.get.and.returnValue(EMPTY);
+
+    const alias = 'some alias';
+    const result$ = service.isAliasAlreadyTaken(alias);
+    result$.subscribe();
+    expect(mockHttpClient.get)
+      .toHaveBeenCalledWith(
+        `${environment.backendHost}${environment.aliasValidationEndpoint}?alias=${alias}`,
         anything());
   });
 });
@@ -231,8 +293,9 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
     mockHttpClient.post.and.returnValue(asyncData(new HttpResponse({status: 201})));
 
     const email = 'some email';
+    const alias = 'some alias';
     const password = 'some password';
-    service.registerNewUser(email, password).subscribe();
+    service.registerNewUser(email, alias, password).subscribe();
 
     // to the correct URL
     expect(mockHttpClient.post).toHaveBeenCalledWith(
@@ -241,7 +304,9 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
       anything());
 
     const body = mockHttpClient.post.calls.mostRecent().args[1];
-    expect(body).toContain(`email=${email}&password=${password}`);
+    expect(body).toContain(`email=${email}`);
+    expect(body).toContain(`alias=${alias}`);
+    expect(body).toContain(`password=${password}`);
 
     const options = mockHttpClient.post.calls.mostRecent().args[2];
     const headers = options.headers;
@@ -253,7 +318,7 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
     mockHttpClient.post.and.returnValue(asyncData(new HttpResponse({status: 201})));
 
     let complete = false;
-    service.registerNewUser('someemail', 'somepassword').subscribe(
+    service.registerNewUser('someemail', 'somealias', 'somepassword').subscribe(
       () => fail('Observable should never emit.'),
       () => fail('Observable should not error here.'),
       () => complete = true
@@ -266,7 +331,7 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
   it('should throw AuthenticationError on 400 response', fakeAsync(() => {
     mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 400})));
 
-    service.registerNewUser('someemail', 'somepassword').subscribe(
+    service.registerNewUser('someemail', 'somealias', 'somepassword').subscribe(
       () => fail('Observable should never emit.'),
       err => expect(err).toBeInstanceOf(AuthenticationFailedError),
       () => fail('Observable should not complete here')
@@ -278,7 +343,7 @@ describe('AuthenticationService \'registerNewUser\' method', () => {
   it('should throw AuthenticationError on 500 response', fakeAsync(() => {
     mockHttpClient.post.and.returnValue(asyncError(new HttpErrorResponse({status: 500})));
 
-    service.registerNewUser('someemail', 'somepassword').subscribe(
+    service.registerNewUser('someemail', 'somalias', 'somepassword').subscribe(
       () => fail('Observable should never emit.'),
       err => expect(err).toBeInstanceOf(AuthenticationFailedError),
       () => fail('Observable should not complete here')

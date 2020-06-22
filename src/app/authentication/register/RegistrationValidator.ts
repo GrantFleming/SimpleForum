@@ -40,3 +40,21 @@ export function emailAvailabilityValidator(authService: AuthenticationService): 
     );
   };
 }
+
+/**
+ * Asynchronous validator that emits errors if the server response indicates that
+ * an alias is already taken
+ */
+export function aliasAvailabilityValidator(authService: AuthenticationService): AsyncValidatorFn {
+  /**
+   * Emits a validation error if the given form control's value is an email which
+   * already exists.
+   */
+  return (control: AbstractControl) => {
+    return authService.isAliasAlreadyTaken(control.value).pipe(
+      map(taken => taken ? {aliasAlreadyTaken: 'this alias is already taken'} : null),
+      // defensive programming, async validators MUST complete
+      take(1)
+    );
+  };
+}

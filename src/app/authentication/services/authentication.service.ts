@@ -31,6 +31,7 @@ export class AuthenticationService implements HttpInterceptor {
   private loginURL = `${environment.backendHost}${environment.tokenRetrievalEndpoint}`;
   private registrationURL = `${environment.backendHost}${environment.userRegistrationEndpoint}`;
   private emailValidationURL = `${environment.backendHost}${environment.emailValidationEndpoint}`;
+  private aliasValidationURL = `${environment.backendHost}${environment.aliasValidationEndpoint}`;
   private jwtHelperService = new JwtHelperService();
 
   constructor(private httpClient: HttpClient) {
@@ -52,11 +53,12 @@ export class AuthenticationService implements HttpInterceptor {
    * server, or an error response from the server.
    *
    * @param email of the new user
+   * @param alias of the new user
    * @param password of the new user
    */
-  registerNewUser(email: string, password: string): Observable<never> {
+  registerNewUser(email: string, alias: string, password: string): Observable<never> {
     const headers = new HttpHeaders().append('Content-Type', 'application/x-www-form-urlencoded');
-    const body = `email=${email}&password=${password}`;
+    const body = `email=${email}&alias=${alias}&password=${password}`;
 
     const request$ = this.httpClient.post(this.registrationURL, body, {headers});
     return request$.pipe(
@@ -79,6 +81,30 @@ export class AuthenticationService implements HttpInterceptor {
     return this.httpClient.get(url, {observe: 'response'})
       .pipe(
         // throw error if response status is not 200 otherwise get and trim the body
+        map(response => {
+          if (response.status !== 200) {
+            throw new Error('Non-200 status from server.');
+          } else if (typeof response.body !== 'boolean') {
+            throw new Error('Could not understand server response, ' +
+              'expected a boolean and instead got a ' + typeof response.body);
+          }
+          return response.body;
+        })
+      );
+  }
+
+  /**
+   * Checks whither a given alias has already been taken by a user or not.
+   *
+   * Returned observable emits true if the alias is ALREADY TAKEN
+   *
+   * @param alias to check for availability
+   */
+  isAliasAlreadyTaken(alias: string): Observable<boolean> {
+    const url = `${this.aliasValidationURL}?alias=${alias}`;
+    return this.httpClient.get(url, {observe: 'response'})
+      .pipe(
+        // throw error if response status is not 200 or is not recognised as a boolean
         map(response => {
           if (response.status !== 200) {
             throw new Error('Non-200 status from server.');
