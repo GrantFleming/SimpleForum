@@ -11,12 +11,16 @@ span.burger_menu {
   }
 }
 
-.siteTitle {
-  display: inline;
-  padding-top: 0.5em;
-  padding-left: 0.5em;
+.titleBar {
+  margin-top: 0.5em;
 
-  .super-light {
-    font-weight: 100;
+  .siteTitle {
+    display: inline;
+    padding-top: 0.5em;
+    padding-left: 0.5em;
+
+    .super-light {
+      font-weight: 100;
+    }
   }
 }

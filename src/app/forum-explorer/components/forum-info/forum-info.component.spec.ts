@@ -69,7 +69,7 @@ describe('ForumInfoComponent', () => {
     fixture.detectChanges();
     const creatorDe: DebugElement = fixture.debugElement.query(By.css('.creator'));
     const creatorNe = creatorDe.nativeElement;
-    expect(creatorNe.textContent).toEqual(testForum.creator);
+    expect(creatorNe.textContent).toContain(testForum.creator);
   });
 
   it('should contain a button to the described forum', () => {

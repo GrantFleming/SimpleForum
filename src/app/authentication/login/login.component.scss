@@ -1,9 +1,9 @@
+@import "../mixins";
+
 div.container {
-  // center the container on the screen
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  /* the argument was chose as this value allows the appearance
+      of seamless transition between centering methods */
+  @include centerInWindow(465px);
 
   padding: 2em;
   box-sizing: border-box;

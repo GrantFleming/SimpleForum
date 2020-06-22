@@ -5,9 +5,11 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <span (click)="sidenav.toggle()" class="burger_menu">&#x2630;</span>
-    <h1 class="siteTitle"><b>S</b><span class="super-light">imple</span><b>F</b><span class="super-light">orum</span>
-    </h1>
+    <div class="titleBar">
+      <span (click)="sidenav.toggle()" class="burger_menu">&#x2630;</span>
+      <h1 class="siteTitle"><b>S</b><span class="super-light">imple</span><b>F</b><span class="super-light">orum</span>
+      </h1>
+    </div>
     <router-outlet (activate)="sidenav.close()"></router-outlet>
   </mat-sidenav-content>
 

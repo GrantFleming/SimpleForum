@@ -1,0 +1,22 @@
+/*
+  Positions an element in the absolute center of the screen (both horizontally
+  and vertically) if the window height is above the given threshold
+
+  If the window height is below the given threshold, leave it in the normal
+  document flow but center is horizontally.
+ */
+@mixin centerInWindow($threshold) {
+  @media (max-height: $threshold) {
+    // center horizontally
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media(min-height: $threshold) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
